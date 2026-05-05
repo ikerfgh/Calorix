@@ -1,0 +1,182 @@
+@using Calorix.Models
+@{
+    ViewData["Title"] = "Mis Pacientes";
+    var pacientes = (List<Usuario>)ViewBag.Pacientes;
+    var busqueda = ViewBag.Busqueda as List<object> ?? new List<object>();
+    var q = (string)ViewBag.Q ?? "";
+    int pacienteSeleccionado = ViewBag.PacienteSeleccionado ?? 0;
+    var resumenPaciente = ViewBag.ResumenPaciente as dynamic;
+}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Mis Pacientes</div>
+    <div class="page-subtitle">@pacientes.Count paciente(s) activos</div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="grid" style="grid-template-columns:320px 1fr;gap:var(--space-6);align-items:start">
+    <!-- Panel izquierdo: lista + búsqueda -->
+    <div>
+      <!-- Buscar usuarios -->
+      <div class="card mb-4">
+        <div class="card-title mb-3">Agregar Paciente</div>
+        <form method="get" action="/Pacientes">
+          <div class="input-group mb-3">
+            <span class="input-icon">🔍</span>
+            <input type="text" name="q" value="@q" class="form-control" placeholder="Buscar por nombre o email..." />
+          </div>
+          <button type="submit" class="btn btn-secondary btn-sm btn-full">Buscar usuarios</button>
+        </form>
+
+        @if (!string.IsNullOrEmpty(q))
+        {
+          var usuarios = busqueda.Cast<Usuario>().ToList();
+          <div class="mt-3">
+            @if (!usuarios.Any())
+            {
+              <p class="text-sm text-muted">Sin resultados para "@q"</p>
+            }
+            else
+            {
+              @foreach (var u in usuarios)
+              {
+                <div class="flex items-center justify-between p-3 rounded-lg mb-2" style="background:var(--color-muted)">
+                  <div>
+                    <div class="text-sm font-medium">@u.Nombre</div>
+                    <div class="text-xs text-muted">@u.Email</div>
+                  </div>
+                  @if (pacientes.Any(p => p.Id == u.Id))
+                  {
+                    <span class="badge badge-success">Vinculado</span>
+                  }
+                  else
+                  {
+                    <button class="btn btn-primary btn-sm" onclick="vincularPaciente(@u.Id)">Vincular</button>
+                  }
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Lista de pacientes -->
+      <div class="card">
+        <div class="card-title mb-3">Pacientes Activos</div>
+        @if (!pacientes.Any())
+        {
+          <div style="text-align:center;padding:2rem;color:var(--color-muted-foreground)">
+            <div style="font-size:2.5rem;margin-bottom:.75rem">👥</div>
+            <div class="text-sm">Sin pacientes vinculados aún</div>
+          </div>
+        }
+        else
+        {
+          @foreach (var p in pacientes)
+          {
+            <a href="/Pacientes?pacienteId=@p.Id" class="paciente-card mb-3 @(pacienteSeleccionado==p.Id?"selected":"")">
+              <div class="paciente-avatar">@p.Nombre[0]</div>
+              <div>
+                <div class="text-sm font-semibold">@p.Nombre</div>
+                <div class="text-xs text-muted">@p.Email</div>
+                <div class="text-xs text-muted">Meta: @((int)p.MetaCalorica) kcal</div>
+              </div>
+            </a>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Panel derecho: resumen paciente -->
+    <div>
+      @if (pacienteSeleccionado > 0 && resumenPaciente != null)
+      {
+        var pac = pacientes.FirstOrDefault(p => p.Id == pacienteSeleccionado);
+        float totalCal = resumenPaciente.TotalCalorias;
+        float meta = resumenPaciente.MetaCalorica;
+        float pct = resumenPaciente.PorcentajeCumplimiento;
+        var registros = (List<RegistroComida>)resumenPaciente.Registros;
+
+        <div class="card mb-4">
+          <div class="flex items-center gap-4">
+            <div class="paciente-avatar" style="width:52px;height:52px;font-size:1.5rem">@pac?.Nombre[0]</div>
+            <div>
+              <div class="font-semibold text-lg">@pac?.Nombre</div>
+              <div class="text-sm text-muted">Historial de hoy — @DateTime.Today.ToString("dd/MM/yyyy")</div>
+            </div>
+            <div style="margin-left:auto;text-align:right">
+              <div class="text-2xl font-bold" style="color:var(--color-primary)">@((int)totalCal)</div>
+              <div class="text-xs text-muted">de @((int)meta) kcal</div>
+            </div>
+          </div>
+          <div class="progress-track mt-4" style="height:8px">
+            <div class="progress-fill @(pct>=90?"success":pct>=110?"danger":"")" style="width:@(Math.Min(pct,100))%"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-3 mb-4">
+          <div class="stat-card">
+            <div class="stat-label">Proteínas</div>
+            <div class="stat-value" style="color:var(--color-blue-500)">@((int)resumenPaciente.TotalProteinas)g</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Carbos</div>
+            <div class="stat-value" style="color:var(--color-orange-500)">@((int)resumenPaciente.TotalCarbos)g</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Grasas</div>
+            <div class="stat-value" style="color:var(--color-purple-500)">@((int)resumenPaciente.TotalGrasas)g</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title mb-4">Registros del día</div>
+          @if (!registros.Any())
+          {
+            <p class="text-sm text-muted" style="text-align:center;padding:2rem">Sin registros hoy</p>
+          }
+          else
+          {
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Momento</th>
+                    <th>Alimento</th>
+                    <th>Cantidad</th>
+                    <th>Calorías</th>
+                    <th>Proteínas</th>
+                    <th>Carbos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach (var r in registros)
+                  {
+                    <tr>
+                      <td><span class="momento-badge momento-@r.Momento">@r.Momento</span></td>
+                      <td>@r.NombreAlimento</td>
+                      <td>@r.Cantidad @r.UnidadCantidad</td>
+                      <td><strong style="color:var(--color-primary)">@((int)r.Calorias)</strong></td>
+                      <td>@((int)r.Proteinas)g</td>
+                      <td>@((int)r.Carbohidratos)g</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      }
+      else
+      {
+        <div class="card" style="text-align:center;padding:4rem">
+          <div style="font-size:3.5rem;margin-bottom:1rem">👈</div>
+          <div class="font-semibold">Selecciona un paciente</div>
+          <div class="text-sm text-muted mt-2">Haz clic en un paciente para ver su resumen</div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

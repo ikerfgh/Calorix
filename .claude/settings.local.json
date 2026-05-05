@@ -8,7 +8,22 @@
       "Bash(git init:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(unzip:*)",
+      "Bash(mv:*)",
+      "Bash(dotnet:*)",
+      "Bash(cd:*)",
+      "Bash(curl:*)",
+      "Bash(taskkill:*)",
+      "Bash(sleep:*)",
+      "Bash(rm:*)",
+      "Bash(do:*)",
+      "Bash(git remote:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

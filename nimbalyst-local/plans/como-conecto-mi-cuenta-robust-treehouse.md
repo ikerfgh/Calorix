@@ -1,9 +1,8 @@
 ---
 title: Conectar proyecto a GitHub (repo nuevo)
-date: 2026-05-04
+date: 2026-05-04T00:00:00.000Z
 status: pending
 ---
-
 ## Context
 
 El proyecto en `C:\Users\ikere\Documents\Calorix\Calorix` no tiene git inicializado ni repositorio en GitHub. El objetivo es:
@@ -74,7 +73,7 @@ gh repo view --web     # abre el repo en el navegador
 ## Archivos críticos
 
 - `.git/config` — se crea en el Paso 2, contiene la URL del remote tras el Paso 3
-- `C:\Users\ikere\Documents\Calorix\Calorix\` — directorio raíz del proyecto
+- `C:\Users\ikere\Documents\Calorix\Calorix` — directorio raíz del proyecto
 
 ---
 

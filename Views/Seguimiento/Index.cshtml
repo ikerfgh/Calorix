@@ -1,0 +1,144 @@
+@{
+    ViewData["Title"] = "Seguimiento";
+    var resumen = (dynamic)ViewBag.Resumen;
+    var stats = (dynamic)ViewBag.Stats;
+    var macros = (dynamic)ViewBag.Macros;
+    var formula = (string)ViewBag.Formula ?? "mifflin";
+    var statsJson = (string)ViewBag.StatsJson ?? "{}";
+
+    float totalCal = resumen.TotalCalorias;
+    float meta = resumen.MetaCalorica;
+    float pct = resumen.PorcentajeCumplimiento;
+    float prot = resumen.TotalProteinas;
+    float carb = resumen.TotalCarbos;
+    float grasas = resumen.TotalGrasas;
+}
+
+<!-- Page Header -->
+<div class="page-header">
+  <div>
+    <div class="page-title">Seguimiento Nutricional</div>
+    <div class="page-subtitle">@DateTime.Today.ToString("dddd, d 'de' MMMM", new System.Globalization.CultureInfo("es-MX"))</div>
+  </div>
+  <div style="margin-left:auto">
+    <form method="get" action="/Seguimiento">
+      <select name="formula" class="form-control" onchange="this.form.submit()" style="width:auto;min-width:200px">
+        <option value="mifflin" selected="@(formula=="mifflin")">Mifflin-St Jeor</option>
+        <option value="harris" selected="@(formula=="harris")">Harris-Benedict</option>
+        <option value="deportiva" selected="@(formula=="deportiva")">Katch-McArdle (Deportiva)</option>
+      </select>
+    </form>
+  </div>
+</div>
+
+<div class="page-body">
+  <!-- Stat cards row -->
+  <div class="grid grid-4 mb-8">
+    <div class="stat-card">
+      <div class="stat-label">Calorías hoy</div>
+      <div class="stat-value" style="color:var(--color-primary)">@((int)totalCal)</div>
+      <div class="stat-meta">Meta: @((int)meta) kcal</div>
+      <div class="progress-track mt-2">
+        <div class="progress-fill @(pct >= 90 ? "success" : pct >= 110 ? "danger" : "")" style="width:@(Math.Min(pct,100))%"></div>
+      </div>
+      <div style="font-size:var(--font-size-xs);color:var(--color-muted-foreground);margin-top:.25rem">@((int)pct)% completado</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Proteínas</div>
+      <div class="stat-value" style="color:var(--color-blue-500)">@((int)prot)<span style="font-size:var(--font-size-lg);font-weight:400">g</span></div>
+      <div class="stat-meta">Meta: @((int)macros.ProteinasGramos)g</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Carbohidratos</div>
+      <div class="stat-value" style="color:var(--color-orange-500)">@((int)carb)<span style="font-size:var(--font-size-lg);font-weight:400">g</span></div>
+      <div class="stat-meta">Meta: @((int)macros.CarbosGramos)g</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Grasas</div>
+      <div class="stat-value" style="color:var(--color-purple-500)">@((int)grasas)<span style="font-size:var(--font-size-lg);font-weight:400">g</span></div>
+      <div class="stat-meta">Meta: @((int)macros.GrasasGramos)g</div>
+    </div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:1fr 380px;gap:var(--space-6)">
+    <!-- Bar chart -->
+    <div class="card">
+      <div class="card-title">Calorías — Últimos 7 días</div>
+      <div class="card-desc mb-4">Promedio semanal: <strong>@((int)stats.PromedioCaloriasDia) kcal/día</strong> · Meta: @((int)meta) kcal</div>
+      <div class="chart-container">
+        <div class="chart-bars" id="bar-chart"></div>
+      </div>
+      <div style="text-align:center;margin-top:.5rem;font-size:var(--font-size-xs);color:var(--color-muted-foreground)">
+        Barra de hoy resaltada en azul
+      </div>
+    </div>
+
+    <!-- Macro rings -->
+    <div class="card">
+      <div class="card-title">Macros Recomendados</div>
+      <div class="card-desc mb-4">Fórmula: @macros.Formula</div>
+
+      <div class="macro-rings">
+        <div class="macro-ring-item">
+          <svg id="ring-prot" class="ring-svg" width="80" height="80" viewBox="0 0 80 80"></svg>
+          <div class="macro-ring-value" style="color:var(--color-blue-500)">@((int)macros.ProteinasGramos)g</div>
+          <div class="macro-ring-label">Proteínas</div>
+        </div>
+        <div class="macro-ring-item">
+          <svg id="ring-carb" class="ring-svg" width="80" height="80" viewBox="0 0 80 80"></svg>
+          <div class="macro-ring-value" style="color:var(--color-orange-500)">@((int)macros.CarbosGramos)g</div>
+          <div class="macro-ring-label">Carbos</div>
+        </div>
+        <div class="macro-ring-item">
+          <svg id="ring-gras" class="ring-svg" width="80" height="80" viewBox="0 0 80 80"></svg>
+          <div class="macro-ring-value" style="color:var(--color-purple-500)">@((int)macros.GrasasGramos)g</div>
+          <div class="macro-ring-label">Grasas</div>
+        </div>
+      </div>
+
+      <hr class="divider" />
+      <div style="font-size:var(--font-size-sm)">
+        <div class="flex justify-between mb-2">
+          <span class="text-muted">Meta calórica total</span>
+          <strong>@((int)macros.CaloriasMeta) kcal</strong>
+        </div>
+        <div class="flex justify-between mb-2">
+          <span class="text-muted">30% Proteínas</span>
+          <span>@((int)macros.ProteinasGramos)g</span>
+        </div>
+        <div class="flex justify-between mb-2">
+          <span class="text-muted">40% Carbohidratos</span>
+          <span>@((int)macros.CarbosGramos)g</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-muted">30% Grasas</span>
+          <span>@((int)macros.GrasasGramos)g</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="card mt-6">
+    <div class="flex items-center justify-between mb-4">
+      <div class="card-title">Acciones Rápidas</div>
+    </div>
+    <div class="flex gap-3">
+      <a href="/Registro" class="btn btn-primary">✏️ Registrar comida</a>
+      <a href="/Alimentos" class="btn btn-outline">🥦 Ver alimentos</a>
+      <a href="/Perfil" class="btn btn-outline">👤 Mi perfil</a>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+const statsData = @Html.Raw(statsJson);
+document.addEventListener('DOMContentLoaded', () => {
+  renderBarChart('bar-chart', statsData);
+  renderRing('ring-prot', @prot, @macros.ProteinasGramos, 'ring-prot');
+  renderRing('ring-carb', @carb, @macros.CarbosGramos, 'ring-carb');
+  renderRing('ring-gras', @grasas, @macros.GrasasGramos, 'ring-grasas');
+});
+</script>
+}

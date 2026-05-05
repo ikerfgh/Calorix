@@ -1,0 +1,33 @@
+# .NET build artifacts
+bin/
+obj/
+*.dll
+*.pdb
+*.exe
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+*.userprefs
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local env / secrets
+*.env
+appsettings.Local.json
+
+# NuGet
+*.nupkg
+.nuget/
+packages/
+
+# ASP.NET Core
+**/wwwroot/lib/
