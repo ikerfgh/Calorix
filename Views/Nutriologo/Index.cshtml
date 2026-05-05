@@ -1,0 +1,157 @@
+@using Calorix.Models
+@{
+    ViewData["Title"] = "Perfil Profesional";
+    bool yaRegistrado = ViewBag.YaRegistrado ?? false;
+    var nutriologo = ViewBag.Nutriologo as Nutriologo;
+}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Perfil Profesional</div>
+    <div class="page-subtitle">Información y estado de validación de tu cuenta</div>
+  </div>
+</div>
+
+<div class="page-body">
+  @if (TempData["Msg"] != null)
+  {
+    <div class="alert alert-success">✓ @TempData["Msg"]</div>
+  }
+
+  @if (yaRegistrado && nutriologo != null)
+  {
+    <div class="grid" style="grid-template-columns:300px 1fr;gap:var(--space-6);align-items:start">
+      <div class="card">
+        <div style="text-align:center;margin-bottom:1.5rem">
+          <div style="width:72px;height:72px;background:var(--color-primary);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;margin:0 auto 1rem">🩺</div>
+          <div class="font-semibold text-xl">@nutriologo.Nombre</div>
+          <div class="text-sm text-muted mt-1">@nutriologo.Email</div>
+          <div class="mt-3">
+            @if (nutriologo.Validado)
+            {
+              <span class="badge badge-success">✓ Cuenta Validada</span>
+            }
+            else
+            {
+              <span class="badge badge-warning">⏳ Pendiente de Validación</span>
+            }
+          </div>
+        </div>
+        <hr class="divider" />
+        <div class="text-sm">
+          <div class="flex justify-between mb-3">
+            <span class="text-muted">Cédula</span>
+            <strong>@nutriologo.Cedula</strong>
+          </div>
+          <div class="flex justify-between mb-3">
+            <span class="text-muted">Especialidad</span>
+            <span>@nutriologo.Especialidad</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-muted">Experiencia</span>
+            <span>@nutriologo.AniosExp años</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title mb-2">Estado de la Cuenta</div>
+        <div class="card-desc mb-6">Documentación y validación profesional</div>
+
+        @if (nutriologo.Validado)
+        {
+          <div class="alert alert-success">
+            ✅ Tu cuenta ha sido validada. Puedes gestionar pacientes y crear planes alimenticios.
+          </div>
+        }
+        else
+        {
+          <div class="alert alert-warning">
+            ⏳ Tu cuenta está <strong>pendiente de validación</strong>. El equipo de Calorix revisará tu documentación.
+          </div>
+          <div class="card-sm" style="background:var(--color-muted);border-radius:var(--radius-lg);margin-top:1rem">
+            <div class="font-medium mb-2">Documentos requeridos</div>
+            <div class="flex items-center gap-3 mb-2">
+              <span style="color:var(--color-success)">✓</span>
+              <span class="text-sm">Cédula profesional (@nutriologo.Cedula)</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span style="color:var(--color-warning)">⏳</span>
+              <span class="text-sm">Título universitario — en revisión</span>
+            </div>
+          </div>
+        }
+
+        <div class="mt-6">
+          <div class="font-medium mb-3">Subir documentación adicional</div>
+          <div class="form-group">
+            <label class="form-label">Documento de validación</label>
+            <input type="file" class="form-control" accept=".pdf,.jpg,.png"
+                   onchange="showToast('Documento subido correctamente. En revisión.', 'success')" />
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+  else
+  {
+    <!-- Registro form -->
+    <div style="max-width:600px;margin:0 auto">
+      <div class="card">
+        <div class="card-title mb-1">Registro Profesional</div>
+        <div class="card-desc mb-6">Crea tu cuenta de nutriólogo en Calorix</div>
+
+        <form method="post" action="/Nutriologo/Registrar">
+          <div class="grid grid-2 gap-4">
+            <div class="form-group">
+              <label class="form-label">Nombre completo *</label>
+              <input type="text" name="nombre" class="form-control" placeholder="Dr. Juan Pérez" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cédula Profesional *</label>
+              <input type="text" name="cedula" class="form-control" placeholder="NUT-001234" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email *</label>
+              <input type="email" name="email" class="form-control" placeholder="nutriologo@email.com" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contraseña *</label>
+              <input type="password" name="password" class="form-control" placeholder="••••••••" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Especialidad *</label>
+              <select name="especialidad" class="form-control" required>
+                <option value="">Selecciona...</option>
+                <option value="Nutrición Clínica">Nutrición Clínica</option>
+                <option value="Nutrición Deportiva">Nutrición Deportiva</option>
+                <option value="Nutrición Pediátrica">Nutrición Pediátrica</option>
+                <option value="Nutrición Oncológica">Nutrición Oncológica</option>
+                <option value="Nutrición General">Nutrición General</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Años de experiencia</label>
+              <input type="number" name="aniosExp" class="form-control" placeholder="5" min="0" max="60" value="1" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Documentación de validación</label>
+            <input type="file" class="form-control" accept=".pdf,.jpg,.png"
+                   onchange="showToast('Documento cargado.', 'success')" />
+            <div class="text-xs text-muted mt-1">Sube tu cédula o título universitario (PDF, JPG, PNG)</div>
+          </div>
+
+          <div class="alert alert-info mt-2" style="font-size:var(--font-size-xs)">
+            ℹ️ Tu cuenta quedará pendiente de validación. Podrás gestionar pacientes mientras tanto.
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full btn-lg mt-4">
+            Crear cuenta de nutriólogo →
+          </button>
+        </form>
+      </div>
+    </div>
+  }
+</div>

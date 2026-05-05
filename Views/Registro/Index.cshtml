@@ -1,0 +1,161 @@
+@using Calorix.Models
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Registro de Comidas";
+    var resumen = (dynamic)ViewBag.Resumen;
+    var alimentos = (List<Alimento>)ViewBag.Alimentos;
+    var recetas = (List<Receta>)ViewBag.Recetas;
+    var q = (string)ViewBag.Q ?? "";
+
+    float totalCal = resumen.TotalCalorias;
+    float meta = resumen.MetaCalorica;
+    float pct = resumen.PorcentajeCumplimiento;
+    var registros = (List<RegistroComida>)resumen.Registros;
+
+    var alimentosJson = JsonSerializer.Serialize(alimentos.Select(a => new {
+        id = a.Id, nombre = a.Nombre, categoria = a.Categoria,
+        calorias = a.Calorias, proteinas = a.Proteinas, carbohidratos = a.Carbohidratos, grasas = a.Grasas
+    }));
+    var recetasJson = JsonSerializer.Serialize(recetas.Select(r => new {
+        id = r.Id, nombre = r.Nombre,
+        caloriasTotal = r.CaloriasTotal, proteinasTotal = r.ProteinasTotal,
+        carbosTotal = r.CarbosTotal, grasasTotal = r.GrasasTotal
+    }));
+    var momentos = new[] { "Desayuno", "Comida", "Cena", "Snack" };
+}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Registro de Comidas</div>
+    <div class="page-subtitle">@DateTime.Today.ToString("dddd, d 'de' MMMM", new System.Globalization.CultureInfo("es-MX"))</div>
+  </div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:1rem">
+    <div>
+      <span class="text-sm text-muted">Total hoy:</span>
+      <strong style="color:var(--color-primary);margin-left:.5rem">@((int)totalCal) / @((int)meta) kcal</strong>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('modal-registro')">+ Registrar comida</button>
+  </div>
+</div>
+
+<div class="page-body">
+  <!-- Progress -->
+  <div class="card mb-6">
+    <div class="flex justify-between items-center mb-2">
+      <span class="text-sm font-medium">Progreso del día</span>
+      <span class="text-sm text-muted">@((int)pct)%</span>
+    </div>
+    <div class="progress-track" style="height:12px">
+      <div class="progress-fill @(pct>=90?"success":pct>=110?"danger":"")" style="width:@(Math.Min(pct,100))%"></div>
+    </div>
+    <div class="flex justify-between text-xs text-muted mt-1">
+      <span>0 kcal</span>
+      <span>Meta: @((int)meta) kcal</span>
+    </div>
+  </div>
+
+  <!-- Registros del día agrupados por momento -->
+  @foreach (var momento in momentos)
+  {
+    var regs = registros.Where(r => r.Momento == momento).ToList();
+    if (!regs.Any()) continue;
+    var calMomento = regs.Sum(r => r.Calorias);
+    <div class="card mb-4">
+      <div class="flex justify-between items-center mb-3">
+        <div class="flex items-center gap-3">
+          <span class="momento-badge momento-@momento">@momento</span>
+          <span class="font-semibold">@momento</span>
+        </div>
+        <span class="text-sm font-semibold text-primary">@((int)calMomento) kcal</span>
+      </div>
+      @foreach (var reg in regs)
+      {
+        <div class="registro-item" id="reg-@reg.Id">
+          <div style="flex:1">
+            <div class="text-sm font-medium">@reg.NombreAlimento</div>
+            <div class="text-xs text-muted">@reg.Cantidad @reg.UnidadCantidad</div>
+          </div>
+          <div class="flex gap-4 text-xs">
+            <span style="color:var(--color-primary)"><strong>@((int)reg.Calorias)</strong> kcal</span>
+            <span style="color:var(--color-blue-500)">@((int)reg.Proteinas)g prot</span>
+            <span style="color:var(--color-orange-500)">@((int)reg.Carbohidratos)g carb</span>
+            <span style="color:var(--color-purple-500)">@((int)reg.Grasas)g grasas</span>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="eliminarRegistro(@reg.Id)"
+                  style="color:var(--color-destructive)" title="Eliminar">✕</button>
+        </div>
+      }
+    </div>
+  }
+
+  @if (!registros.Any())
+  {
+    <div class="card" style="text-align:center;padding:3rem">
+      <div style="font-size:3rem;margin-bottom:1rem">🍽️</div>
+      <div class="font-semibold">Sin registros hoy</div>
+      <div class="text-sm text-muted mt-2">Registra tu primera comida del día</div>
+      <button class="btn btn-primary mt-4" onclick="openModal('modal-registro')">Registrar comida</button>
+    </div>
+  }
+</div>
+
+<!-- Modal Registrar Comida -->
+<div class="modal-overlay" id="modal-registro">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">✏️ Registrar Comida</span>
+      <button class="modal-close" onclick="closeModal('modal-registro')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Buscador unificado -->
+      <div class="form-group">
+        <label class="form-label">Buscar alimento o receta</label>
+        <div style="position:relative">
+          <div class="input-group">
+            <span class="input-icon">🔍</span>
+            <input type="text" id="search-input" class="form-control"
+                   placeholder="Escribe para buscar..." autocomplete="off"
+                   oninput="doSearch(this.value)" onfocus="doSearch(this.value)" />
+          </div>
+          <div id="search-results-box" class="search-results" style="position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:200"></div>
+        </div>
+        <input type="hidden" id="hidden-alimento-id" />
+        <input type="hidden" id="hidden-es-receta" value="false" />
+      </div>
+
+      <!-- Nutrient preview -->
+      <div id="food-preview" class="food-preview"></div>
+
+      <div class="grid grid-2 gap-4 mt-4">
+        <div class="form-group">
+          <label class="form-label" id="cantidad-label">Cantidad (gramos)</label>
+          <input type="number" id="cantidad-input" class="form-control"
+                 min="1" value="100" placeholder="100" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Momento del día</label>
+          <select id="momento-select" class="form-control">
+            <option value="Desayuno">🌅 Desayuno</option>
+            <option value="Comida" selected>☀️ Comida</option>
+            <option value="Cena">🌙 Cena</option>
+            <option value="Snack">🍎 Snack</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-registro')">Cancelar</button>
+      <button class="btn btn-primary" onclick="registrarComida()">Guardar Registro</button>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+const _alimentos = @Html.Raw(alimentosJson);
+const _recetas = @Html.Raw(recetasJson);
+document.addEventListener('DOMContentLoaded', () => {
+  initUnifiedSearch(_alimentos, _recetas);
+});
+</script>
+}

@@ -1,0 +1,177 @@
+@using Calorix.Models
+@{
+    ViewData["Title"] = "Alimentos y Recetas";
+    var alimentos = (List<Alimento>)ViewBag.Alimentos;
+    var recetas = (List<Receta>)ViewBag.Recetas;
+    var todosAlimentos = (List<Alimento>)ViewBag.TodosAlimentos;
+    var q = (string)ViewBag.Q ?? "";
+}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Alimentos y Recetas</div>
+    <div class="page-subtitle">Busca alimentos y crea tus recetas personalizadas</div>
+  </div>
+  <div style="margin-left:auto">
+    <button class="btn btn-primary" onclick="openModal('modal-receta')">+ Nueva Receta</button>
+  </div>
+</div>
+
+<div class="page-body">
+  @if (TempData["Msg"] != null)
+  {
+    <div class="alert alert-success">✓ @TempData["Msg"]</div>
+  }
+
+  <!-- Search -->
+  <form method="get" action="/Alimentos" class="mb-6">
+    <div class="input-group" style="max-width:480px">
+      <span class="input-icon">🔍</span>
+      <input type="text" name="q" value="@q" class="form-control"
+             placeholder="Buscar por nombre o categoría..." />
+    </div>
+  </form>
+
+  <!-- Alimentos -->
+  <div class="card mb-6">
+    <div class="card-title mb-4">
+      🥦 Alimentos (@alimentos.Count)
+      @if (!string.IsNullOrEmpty(q))
+      {
+        <span class="badge badge-gray" style="margin-left:.5rem">Filtro: @q</span>
+      }
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Alimento</th>
+            <th>Categoría</th>
+            <th>Calorías</th>
+            <th>Proteínas</th>
+            <th>Carbos</th>
+            <th>Grasas</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var a in alimentos)
+          {
+            <tr>
+              <td><strong>@a.Nombre</strong></td>
+              <td><span class="badge badge-gray">@a.Categoria</span></td>
+              <td><strong style="color:var(--color-primary)">@a.Calorias</strong> kcal</td>
+              <td>@a.Proteinas g</td>
+              <td>@a.Carbohidratos g</td>
+              <td>@a.Grasas g</td>
+            </tr>
+          }
+          @if (!alimentos.Any())
+          {
+            <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--color-muted-foreground)">Sin resultados para "@q"</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:var(--font-size-xs);color:var(--color-muted-foreground);margin-top:.75rem">
+      * Valores nutricionales por 100g
+    </div>
+  </div>
+
+  <!-- Recetas -->
+  <div class="card">
+    <div class="flex items-center justify-between mb-4">
+      <div class="card-title">📋 Mis Recetas (@recetas.Count)</div>
+      <button class="btn btn-primary btn-sm" onclick="openModal('modal-receta')">+ Crear receta</button>
+    </div>
+
+    @if (!recetas.Any())
+    {
+      <div style="text-align:center;padding:3rem;color:var(--color-muted-foreground)">
+        <div style="font-size:3rem;margin-bottom:1rem">🍳</div>
+        <div class="font-semibold">Sin recetas aún</div>
+        <div class="text-sm text-muted mt-2">Crea tu primera receta combinando alimentos</div>
+        <button class="btn btn-primary mt-4" onclick="openModal('modal-receta')">Crear primera receta</button>
+      </div>
+    }
+    else
+    {
+      <div class="grid grid-2 gap-4">
+        @foreach (var r in recetas)
+        {
+          <div class="card card-sm" style="border:1px solid var(--color-border)">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-semibold">@r.Nombre</span>
+              <span class="badge badge-primary">@r.CaloriasTotal kcal/porción</span>
+            </div>
+            <div class="text-sm text-muted mb-3">@r.Descripcion</div>
+            <div class="flex gap-3 text-xs">
+              <span style="color:var(--color-blue-500)"><strong>@r.ProteinasTotal g</strong> prot</span>
+              <span style="color:var(--color-orange-500)"><strong>@r.CarbosTotal g</strong> carb</span>
+              <span style="color:var(--color-purple-500)"><strong>@r.GrasasTotal g</strong> grasas</span>
+            </div>
+            <div class="text-xs text-muted mt-2">@r.Ingredientes.Count ingredientes · @r.FechaCreacion.ToString("dd/MM/yyyy")</div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modal Crear Receta -->
+<div class="modal-overlay" id="modal-receta">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">🍳 Nueva Receta</span>
+      <button class="modal-close" onclick="closeModal('modal-receta')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="receta-form" method="post" action="/Alimentos/CrearReceta">
+        <input type="hidden" name="ingredientesJson" id="receta-ingredientes-json" />
+
+        <div class="form-group">
+          <label class="form-label">Nombre de la receta *</label>
+          <input type="text" id="receta-nombre" name="nombre" class="form-control" placeholder="Ej. Ensalada Proteica" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <input type="text" id="receta-desc" name="descripcion" class="form-control" placeholder="Breve descripción..." />
+        </div>
+
+        <hr class="divider" />
+        <div class="form-group">
+          <label class="form-label">Agregar ingrediente</label>
+          <div class="flex gap-2">
+            <select id="ing-alimento" class="form-control">
+              @foreach (var a in todosAlimentos)
+              {
+                <option value="@a.Id" data-nombre="@a.Nombre">@a.Nombre (@a.Calorias kcal/100g)</option>
+              }
+            </select>
+            <input type="number" id="ing-cantidad" class="form-control" style="width:100px" placeholder="g" min="1" value="100" />
+            <button type="button" class="btn btn-secondary btn-sm" onclick="addIngFromForm()">+</button>
+          </div>
+        </div>
+
+        <div id="ingredientes-list" style="margin-bottom:1rem">
+          <p class="text-xs text-muted">Sin ingredientes aún.</p>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-receta')">Cancelar</button>
+      <button class="btn btn-primary" onclick="submitReceta()">Guardar Receta</button>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+function addIngFromForm() {
+  const sel = document.getElementById('ing-alimento');
+  const id = sel.value;
+  const nombre = sel.options[sel.selectedIndex].dataset.nombre;
+  const cant = parseFloat(document.getElementById('ing-cantidad').value) || 100;
+  addIngrediente(id, nombre, cant);
+}
+</script>
+}
