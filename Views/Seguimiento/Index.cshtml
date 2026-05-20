@@ -1,10 +1,27 @@
+@using Calorix.Models
 @{
-    ViewData["Title"] = "Seguimiento";
+    ViewData["Title"] = "Dashboard";
     var resumen = (dynamic)ViewBag.Resumen;
     var stats = (dynamic)ViewBag.Stats;
     var macros = (dynamic)ViewBag.Macros;
     var formula = (string)ViewBag.Formula ?? "mifflin";
+    var periodo = ((string)ViewBag.Periodo ?? "semana").ToLowerInvariant();
     var statsJson = (string)ViewBag.StatsJson ?? "{}";
+    var pesoJson = (string)ViewBag.PesoJson ?? "{}";
+    var weekDetailsJson = (string)ViewBag.WeekDetailsJson ?? "{}";
+    var historialPeso = ViewBag.HistorialPeso as List<RegistroPeso> ?? new List<RegistroPeso>();
+    float pesoActual = historialPeso.LastOrDefault()?.Peso ?? 0;
+    float pesoInicial = historialPeso.FirstOrDefault()?.Peso ?? pesoActual;
+    float pesoDelta = pesoActual - pesoInicial;
+
+    string PeriodoLink(string p) => $"/Seguimiento?formula={formula}&periodo={p}";
+    string PeriodoLabel(string p) => p switch
+    {
+        "mes" => "Últimos 30 días",
+        "año" => "Últimos 12 meses",
+        "anio" => "Últimos 12 meses",
+        _ => "Últimos 7 días"
+    };
 
     float totalCal = resumen.TotalCalorias;
     float meta = resumen.MetaCalorica;
@@ -12,133 +29,368 @@
     float prot = resumen.TotalProteinas;
     float carb = resumen.TotalCarbos;
     float grasas = resumen.TotalGrasas;
+    var registros = (List<RegistroComida>)resumen.Registros;
+
+    float metaProt = macros.ProteinasGramos;
+    float metaCarb = macros.CarbosGramos;
+    float metaGras = macros.GrasasGramos;
+
+    var solicitudes = ViewBag.SolicitudesPendientes as List<(SolicitudVinculacion solicitud, Nutriologo nutriologo)>
+                      ?? new List<(SolicitudVinculacion, Nutriologo)>();
+    var nutriologoActual = ViewBag.NutriologoActual as Nutriologo;
+
+    string descFormula = formula switch
+    {
+        "harris" => "Harris-Benedict: fórmula clásica revisada.",
+        "deportiva" => "Katch-McArdle: basada en masa magra, ideal para atletas.",
+        _ => "Mifflin-St Jeor: fórmula moderna, recomendada por la ADA."
+    };
 }
 
-<!-- Page Header -->
 <div class="page-header">
   <div>
-    <div class="page-title">Seguimiento Nutricional</div>
-    <div class="page-subtitle">@DateTime.Today.ToString("dddd, d 'de' MMMM", new System.Globalization.CultureInfo("es-MX"))</div>
+    <div class="page-title">Dashboard</div>
+    <div class="page-subtitle">@DateTime.Today.ToString("dddd, d 'de' MMMM yyyy", new System.Globalization.CultureInfo("es-MX"))</div>
   </div>
-  <div style="margin-left:auto">
-    <form method="get" action="/Seguimiento">
-      <select name="formula" class="form-control" onchange="this.form.submit()" style="width:auto;min-width:200px">
-        <option value="mifflin" selected="@(formula=="mifflin")">Mifflin-St Jeor</option>
-        <option value="harris" selected="@(formula=="harris")">Harris-Benedict</option>
-        <option value="deportiva" selected="@(formula=="deportiva")">Katch-McArdle (Deportiva)</option>
-      </select>
-    </form>
+  <form method="get" action="/Seguimiento" style="margin-left:auto">
+    <select name="formula" class="form-control" onchange="this.form.submit()" style="width:auto;min-width:200px;font-size:12px">
+      <option value="mifflin" selected="@(formula=="mifflin")">Mifflin-St Jeor</option>
+      <option value="harris" selected="@(formula=="harris")">Harris-Benedict</option>
+      <option value="deportiva" selected="@(formula=="deportiva")">Katch-McArdle (Deportiva)</option>
+    </select>
+  </form>
+</div>
+
+@if (TempData["Msg"] != null)
+{
+  <div class="alert alert-success mb-4">@TempData["Msg"]</div>
+}
+
+@if (solicitudes.Any())
+{
+  <div class="card mb-4" style="border-color:var(--green)">
+    <div class="card-header">
+      <div class="card-title">🩺 Solicitudes de vinculación pendientes</div>
+      <span class="badge badge-amber">@solicitudes.Count nueva(s)</span>
+    </div>
+    <div class="text-sm text-muted mb-3">
+      Un nutriólogo quiere vincularte como paciente para acceder a tu seguimiento. Solo puedes tener un nutriólogo aprobado a la vez.
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      @foreach (var (sol, n) in solicitudes)
+      {
+        <div style="display:flex;align-items:center;gap:12px;background:var(--bg3);padding:12px 14px;border-radius:10px">
+          <div class="patient-avatar">@(string.IsNullOrEmpty(n.Nombre) ? "?" : n.Nombre.Substring(0,1))</div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:13px">@n.Nombre</div>
+            <div class="text-xs text-muted">@n.Especialidad · @n.AniosExp años de exp. · Cédula @n.Cedula</div>
+            <div class="text-xs text-muted">Solicitud enviada: @sol.Fecha.ToString("dd/MM/yyyy HH:mm")</div>
+          </div>
+          <form method="post" action="/Seguimiento/ResponderSolicitud" style="display:inline">
+            <input type="hidden" name="solicitudId" value="@sol.Id" />
+            <input type="hidden" name="aprobar" value="true" />
+            <button type="submit" class="btn btn-primary btn-sm">✓ Aprobar</button>
+          </form>
+          <form method="post" action="/Seguimiento/ResponderSolicitud" style="display:inline">
+            <input type="hidden" name="solicitudId" value="@sol.Id" />
+            <input type="hidden" name="aprobar" value="false" />
+            <button type="submit" class="btn btn-danger btn-sm">✕ Rechazar</button>
+          </form>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- ─── STAT CARDS ─── -->
+<div class="grid-3 mb-4">
+  <div class="card">
+    <div class="card-title">Calorías Hoy</div>
+    <div class="stat-value" style="color:var(--green)">@((int)totalCal)</div>
+    <div class="stat-label">Meta: @((int)meta) kcal</div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Consumido</span><span>@((int)pct)%</span></div>
+      <div class="progress-bar">
+        <div class="progress-fill fill-green" style="width:@(Math.Min(pct,100))%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Proteínas</div>
+    <div class="stat-value" style="color:var(--blue)">@((int)prot) <span style="font-size:18px">g</span></div>
+    <div class="stat-label">Meta: @((int)metaProt) g</div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Consumido</span><span>@(metaProt > 0 ? (int)Math.Min(prot/metaProt*100,100) : 0)%</span></div>
+      <div class="progress-bar">
+        <div class="progress-fill fill-blue" style="width:@(metaProt > 0 ? Math.Min(prot/metaProt*100,100) : 0)%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Carbohidratos</div>
+    <div class="stat-value" style="color:var(--amber)">@((int)carb) <span style="font-size:18px">g</span></div>
+    <div class="stat-label">Meta: @((int)metaCarb) g</div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Consumido</span><span>@(metaCarb > 0 ? (int)Math.Min(carb/metaCarb*100,100) : 0)%</span></div>
+      <div class="progress-bar">
+        <div class="progress-fill fill-amber" style="width:@(metaCarb > 0 ? Math.Min(carb/metaCarb*100,100) : 0)%"></div>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="page-body">
-  <!-- Stat cards row -->
-  <div class="grid grid-4 mb-8">
-    <div class="stat-card">
-      <div class="stat-label">Calorías hoy</div>
-      <div class="stat-value" style="color:var(--color-primary)">@((int)totalCal)</div>
-      <div class="stat-meta">Meta: @((int)meta) kcal</div>
-      <div class="progress-track mt-2">
-        <div class="progress-fill @(pct >= 90 ? "success" : pct >= 110 ? "danger" : "")" style="width:@(Math.Min(pct,100))%"></div>
-      </div>
-      <div style="font-size:var(--font-size-xs);color:var(--color-muted-foreground);margin-top:.25rem">@((int)pct)% completado</div>
+<!-- ─── CHART + MACROS ─── -->
+<div class="grid-2 mb-4">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Calorías — Semana</div>
+      <span class="badge badge-green" id="weekChartBadge">Esta semana</span>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Proteínas</div>
-      <div class="stat-value" style="color:var(--color-blue-500)">@((int)prot)<span style="font-size:var(--font-size-lg);font-weight:400">g</span></div>
-      <div class="stat-meta">Meta: @((int)macros.ProteinasGramos)g</div>
+    <div class="week-nav">
+      <button type="button" class="week-nav-btn" id="weekPrevBtn" onclick="weekChartPrev()" title="Semana anterior" aria-label="Semana anterior">‹</button>
+      <div class="week-nav-label" id="weekChartLabel">Cargando…</div>
+      <button type="button" class="week-nav-btn" id="weekNextBtn" onclick="weekChartNext()" title="Semana siguiente" aria-label="Semana siguiente">›</button>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Carbohidratos</div>
-      <div class="stat-value" style="color:var(--color-orange-500)">@((int)carb)<span style="font-size:var(--font-size-lg);font-weight:400">g</span></div>
-      <div class="stat-meta">Meta: @((int)macros.CarbosGramos)g</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Grasas</div>
-      <div class="stat-value" style="color:var(--color-purple-500)">@((int)grasas)<span style="font-size:var(--font-size-lg);font-weight:400">g</span></div>
-      <div class="stat-meta">Meta: @((int)macros.GrasasGramos)g</div>
-    </div>
+    <div class="bar-chart" id="weekChart"></div>
+    <div class="text-xs text-muted mt-2" style="text-align:center">💡 Haz clic en un día para ver detalle de macros</div>
   </div>
 
-  <div class="grid" style="grid-template-columns:1fr 380px;gap:var(--space-6)">
-    <!-- Bar chart -->
-    <div class="card">
-      <div class="card-title">Calorías — Últimos 7 días</div>
-      <div class="card-desc mb-4">Promedio semanal: <strong>@((int)stats.PromedioCaloriasDia) kcal/día</strong> · Meta: @((int)meta) kcal</div>
-      <div class="chart-container">
-        <div class="chart-bars" id="bar-chart"></div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Distribución de Macros</div>
+      <span class="badge badge-gray">@macros.Formula</span>
+    </div>
+    <div class="macro-grid">
+      <div class="macro-item">
+        <div class="macro-ring"><svg viewBox="0 0 72 72" id="ring-prot"></svg></div>
+        <div class="macro-val" style="color:var(--blue)">@((int)metaProt)g</div>
+        <div class="macro-name">Proteínas · 30%</div>
       </div>
-      <div style="text-align:center;margin-top:.5rem;font-size:var(--font-size-xs);color:var(--color-muted-foreground)">
-        Barra de hoy resaltada en azul
+      <div class="macro-item">
+        <div class="macro-ring"><svg viewBox="0 0 72 72" id="ring-carb"></svg></div>
+        <div class="macro-val" style="color:var(--amber)">@((int)metaCarb)g</div>
+        <div class="macro-name">Carbos · 40%</div>
+      </div>
+      <div class="macro-item">
+        <div class="macro-ring"><svg viewBox="0 0 72 72" id="ring-gras"></svg></div>
+        <div class="macro-val" style="color:var(--green)">@((int)metaGras)g</div>
+        <div class="macro-name">Grasas · 30%</div>
       </div>
     </div>
+    <div class="sep"></div>
+    <div class="text-sm text-muted">@descFormula</div>
+  </div>
+</div>
 
-    <!-- Macro rings -->
-    <div class="card">
-      <div class="card-title">Macros Recomendados</div>
-      <div class="card-desc mb-4">Fórmula: @macros.Formula</div>
-
-      <div class="macro-rings">
-        <div class="macro-ring-item">
-          <svg id="ring-prot" class="ring-svg" width="80" height="80" viewBox="0 0 80 80"></svg>
-          <div class="macro-ring-value" style="color:var(--color-blue-500)">@((int)macros.ProteinasGramos)g</div>
-          <div class="macro-ring-label">Proteínas</div>
-        </div>
-        <div class="macro-ring-item">
-          <svg id="ring-carb" class="ring-svg" width="80" height="80" viewBox="0 0 80 80"></svg>
-          <div class="macro-ring-value" style="color:var(--color-orange-500)">@((int)macros.CarbosGramos)g</div>
-          <div class="macro-ring-label">Carbos</div>
-        </div>
-        <div class="macro-ring-item">
-          <svg id="ring-gras" class="ring-svg" width="80" height="80" viewBox="0 0 80 80"></svg>
-          <div class="macro-ring-value" style="color:var(--color-purple-500)">@((int)macros.GrasasGramos)g</div>
-          <div class="macro-ring-label">Grasas</div>
-        </div>
-      </div>
-
-      <hr class="divider" />
-      <div style="font-size:var(--font-size-sm)">
-        <div class="flex justify-between mb-2">
-          <span class="text-muted">Meta calórica total</span>
-          <strong>@((int)macros.CaloriasMeta) kcal</strong>
-        </div>
-        <div class="flex justify-between mb-2">
-          <span class="text-muted">30% Proteínas</span>
-          <span>@((int)macros.ProteinasGramos)g</span>
-        </div>
-        <div class="flex justify-between mb-2">
-          <span class="text-muted">40% Carbohidratos</span>
-          <span>@((int)macros.CarbosGramos)g</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-muted">30% Grasas</span>
-          <span>@((int)macros.GrasasGramos)g</span>
-        </div>
-      </div>
-    </div>
+<!-- ─── PROGRESO DE PESO ─── -->
+<div class="card mb-4">
+  <div class="card-header">
+    <div class="card-title">Progreso de Peso</div>
+    <span class="badge @(pesoDelta < 0 ? "badge-green" : pesoDelta > 0 ? "badge-amber" : "badge-gray")">
+      @if (historialPeso.Any())
+      {
+        <text>@(pesoDelta == 0 ? "Sin cambio" : (pesoDelta > 0 ? "+" : "") + pesoDelta.ToString("0.#") + " kg") · @historialPeso.Count registro(s)</text>
+      }
+      else
+      {
+        <text>Vista demo · sin registros</text>
+      }
+    </span>
   </div>
 
-  <!-- Quick actions -->
-  <div class="card mt-6">
-    <div class="flex items-center justify-between mb-4">
-      <div class="card-title">Acciones Rápidas</div>
+  <div class="flex justify-between items-center mb-3" style="flex-wrap:wrap;gap:10px">
+    <div class="period-tabs" role="tablist">
+      <a href="@PeriodoLink("semana")" class="period-tab @(periodo=="semana"?"active":"")">
+        <span class="period-icon">📅</span> Semana
+      </a>
+      <a href="@PeriodoLink("mes")" class="period-tab @(periodo=="mes"?"active":"")">
+        <span class="period-icon">📅</span> Mes
+      </a>
+      <a href="@PeriodoLink("anio")" class="period-tab @(periodo=="año" || periodo=="anio" ?"active":"")">
+        <span class="period-icon">📅</span> Año
+      </a>
     </div>
-    <div class="flex gap-3">
-      <a href="/Registro" class="btn btn-primary">✏️ Registrar comida</a>
-      <a href="/Alimentos" class="btn btn-outline">🥦 Ver alimentos</a>
-      <a href="/Perfil" class="btn btn-outline">👤 Mi perfil</a>
+    <span class="text-xs text-muted">@PeriodoLabel(periodo)</span>
+  </div>
+
+  <div class="line-chart" id="weightChart"></div>
+
+  @if (historialPeso.Any())
+  {
+    <div class="flex justify-between mt-3 text-sm">
+      <span class="text-muted">Peso inicial: <strong>@pesoInicial.ToString("0.#") kg</strong></span>
+      <span class="text-muted">Peso actual: <strong style="color:var(--green)">@pesoActual.ToString("0.#") kg</strong></span>
     </div>
+  }
+  else
+  {
+    <div class="text-xs text-muted mt-3" style="text-align:center">
+      Mostrando datos demo. Actualiza tu peso en <a href="/Perfil" style="color:var(--green)">Mi Perfil</a> para ver tu histórico real.
+    </div>
+  }
+</div>
+
+@{
+    var momentosLista = new (string nombre, string emoji)[] {
+        ("Desayuno", "☀️"),
+        ("Comida",   "🌤️"),
+        ("Cena",     "🌙"),
+        ("Snack",    "🍎")
+    };
+}
+
+<!-- ─── COMIDAS HOY · agrupadas por momento ─── -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Comidas Registradas Hoy</div>
+    <a href="/Registro" class="btn btn-primary">+ Agregar</a>
+  </div>
+
+  @if (!registros.Any())
+  {
+    <div class="empty">
+      <div class="empty-icon">🍽️</div>
+      <div class="empty-title">Sin comidas registradas</div>
+      <div>Ve a Registro para agregar comidas</div>
+    </div>
+  }
+  else
+  {
+    foreach (var (mom, emoji) in momentosLista)
+    {
+      var regsMom = registros.Where(r => r.Momento == mom).ToList();
+      var totalMom = (int)regsMom.Sum(r => r.Calorias);
+      <div class="momento-section">
+        <div class="momento-section-header">
+          <span class="momento-section-title">@emoji @mom.ToUpper()</span>
+          <span class="momento-section-total">Total: <strong>@totalMom kcal</strong></span>
+        </div>
+        @if (!regsMom.Any())
+        {
+          <div class="momento-section-empty">Sin registros</div>
+        }
+        else
+        {
+          foreach (var r in regsMom)
+          {
+            <div class="momento-item">
+              <div style="flex:1">
+                <div class="momento-item-name">@r.NombreAlimento</div>
+                <div class="momento-item-sub">@r.Cantidad @r.UnidadCantidad · P:@((int)r.Proteinas)g · C:@((int)r.Carbohidratos)g · G:@((int)r.Grasas)g</div>
+              </div>
+              <div class="momento-item-cal">@((int)r.Calorias) kcal</div>
+              <button type="button" class="momento-item-del" onclick="eliminarRegistro(@r.Id)" title="Eliminar registro">✕</button>
+            </div>
+          }
+        }
+      </div>
+    }
+  }
+</div>
+
+<!-- ── MODAL DETALLE DEL DÍA ── -->
+<div class="overlay" id="modal-day-detail" onclick="closeModal('modal-day-detail')">
+  <div class="modal modal-wide" onclick="event.stopPropagation()">
+    <div id="day-detail-body"></div>
+    <button type="button" class="btn btn-ghost btn-full mt-4" onclick="closeModal('modal-day-detail')">Cerrar</button>
   </div>
 </div>
 
 @section Scripts {
 <script>
-const statsData = @Html.Raw(statsJson);
+const _stats = @Html.Raw(statsJson);
+const _peso = @Html.Raw(pesoJson);
+const _weekDetails = @Html.Raw(weekDetailsJson);
+
+// Estado del chart de semana (navegable)
+let _weekChartState = {
+  weekOffset: 0,
+  weekLabel: '',
+  isCurrentWeek: true,
+  dias: [],
+  stats: {} // { ddd: cal }
+};
+
+// Construir el objeto "semana actual" a partir de _weekDetails iniciales (sin red)
+function _buildCurrentWeek() {
+  const labels = Object.keys(_weekDetails);
+  const dias = labels.map(l => _weekDetails[l]);
+  const first = dias[0], last = dias[dias.length - 1];
+  let weekLabel = '';
+  if (first && last) {
+    const fmt = (d) => d.fechaTexto ? d.fechaTexto.replace(/^[a-záéíóú]+,\s*/i, '') : (d.fecha || '');
+    weekLabel = `Semana del ${fmt(first).split(' de ')[0]} al ${fmt(last)}`;
+  }
+  return { weekOffset: 0, weekLabel, isCurrentWeek: true, dias, stats: { ..._stats } };
+}
+
+function _renderWeekChart() {
+  const s = _weekChartState;
+  renderBarChart('weekChart', s.stats, null, {
+    unit: 'kcal',
+    clickable: true,
+    onClick: (label) => {
+      const idx = (s.dias || []).findIndex(d => d.label === label);
+      const week = { weekOffset: s.weekOffset, weekLabel: s.weekLabel, isCurrentWeek: s.isCurrentWeek, dias: s.dias };
+      openWeekDayDetail(week, idx >= 0 ? idx : 0, '/Seguimiento/SemanaDetalle');
+    }
+  });
+  // Actualizar label, badge y estado de botones
+  const lbl = document.getElementById('weekChartLabel');
+  if (lbl) lbl.textContent = s.weekLabel || '';
+  const badge = document.getElementById('weekChartBadge');
+  if (badge) {
+    badge.textContent = s.isCurrentWeek ? 'Esta semana' : (s.weekOffset === -1 ? 'Hace 1 semana' : `Hace ${Math.abs(s.weekOffset)} semanas`);
+    badge.classList.toggle('badge-green', s.isCurrentWeek);
+    badge.classList.toggle('badge-gray', !s.isCurrentWeek);
+  }
+  const nextBtn = document.getElementById('weekNextBtn');
+  if (nextBtn) {
+    const blocked = s.weekOffset >= 0;
+    nextBtn.disabled = blocked;
+    nextBtn.classList.toggle('disabled', blocked);
+  }
+}
+
+async function _loadWeek(offset) {
+  try {
+    const r = await fetch(`/Seguimiento/SemanaDetalle?weekOffset=${offset}`);
+    const data = await r.json();
+    if (!data.ok) { notify('No se pudo cargar la semana', 'error'); return; }
+    const stats = {};
+    (data.dias || []).forEach(d => { stats[d.label] = d.cal; });
+    _weekChartState = {
+      weekOffset: data.weekOffset,
+      weekLabel: data.weekLabel || '',
+      isCurrentWeek: !!data.isCurrentWeek,
+      dias: data.dias || [],
+      stats
+    };
+    _renderWeekChart();
+  } catch (e) {
+    notify('Error de conexión', 'error');
+  }
+}
+
+function weekChartPrev() {
+  _loadWeek(_weekChartState.weekOffset - 1);
+}
+function weekChartNext() {
+  if (_weekChartState.weekOffset >= 0) return;
+  _loadWeek(_weekChartState.weekOffset + 1);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  renderBarChart('bar-chart', statsData);
-  renderRing('ring-prot', @prot, @macros.ProteinasGramos, 'ring-prot');
-  renderRing('ring-carb', @carb, @macros.CarbosGramos, 'ring-carb');
-  renderRing('ring-gras', @grasas, @macros.GrasasGramos, 'ring-grasas');
+  _weekChartState = _buildCurrentWeek();
+  _renderWeekChart();
+  renderRing('ring-prot', @prot, @metaProt, '#5bb8f5');
+  renderRing('ring-carb', @carb, @metaCarb, '#f5a623');
+  renderRing('ring-gras', @grasas, @metaGras, '#3ddc84');
+  if (document.getElementById('weightChart')) {
+    renderLineChart('weightChart', _peso, { unit: 'kg', color: '#3ddc84' });
+  }
 });
 </script>
 }

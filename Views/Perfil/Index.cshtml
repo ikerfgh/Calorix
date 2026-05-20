@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Mi Perfil";
     var u = (Usuario?)ViewBag.Usuario;
+    var nutriologo = ViewBag.NutriologoActual as Nutriologo;
 }
 
 <div class="page-header">
@@ -11,97 +12,105 @@
   </div>
 </div>
 
-<div class="page-body">
-  @if (u == null)
-  {
-    <div class="alert alert-error">No se encontró el perfil.</div>
-  }
-  else
-  {
-    <div class="grid" style="grid-template-columns:320px 1fr;gap:var(--space-6)">
-      <!-- Profile card -->
-      <div class="card" style="height:fit-content">
-        <div style="text-align:center;padding-bottom:var(--space-4);border-bottom:1px solid var(--color-border);margin-bottom:var(--space-4)">
-          <div style="width:72px;height:72px;background:var(--color-primary);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#fff;margin:0 auto var(--space-3)">
-            @u.Nombre[0]
-          </div>
-          <div class="font-semibold text-xl">@u.Nombre</div>
-          <div class="text-sm text-muted mt-1">@u.Email</div>
-          <div class="badge badge-primary mt-2">Usuario</div>
-        </div>
-        <div class="text-sm">
-          <div class="flex justify-between mb-3">
-            <span class="text-muted">Meta calórica</span>
-            <strong style="color:var(--color-primary)">@((int)u.MetaCalorica) kcal</strong>
-          </div>
-          <div class="flex justify-between mb-3">
-            <span class="text-muted">Edad</span>
-            <span>@u.Edad años</span>
-          </div>
-          <div class="flex justify-between mb-3">
-            <span class="text-muted">Peso</span>
-            <span>@u.Peso kg</span>
-          </div>
-          <div class="flex justify-between mb-3">
-            <span class="text-muted">Altura</span>
-            <span>@u.Altura cm</span>
-          </div>
-          <div class="flex justify-between mb-3">
-            <span class="text-muted">Género</span>
-            <span>@(u.Genero == "M" ? "Masculino" : "Femenino")</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-muted">Actividad</span>
-            <span>@u.NivelActividad</span>
-          </div>
-        </div>
+@if (TempData["Msg"] != null)
+{
+  <div class="alert alert-success mb-4">@TempData["Msg"]</div>
+}
+
+@if (u == null)
+{
+  <div class="alert alert-error">No se encontró el perfil.</div>
+}
+else
+{
+  <div class="grid-2" style="grid-template-columns:320px 1fr;align-items:start">
+    <!-- TARJETA PERFIL -->
+    <div class="card">
+      <div style="text-align:center;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:18px">
+        <div class="user-avatar" style="width:72px;height:72px;font-size:28px;margin:0 auto 14px">@u.Nombre[0]</div>
+        <div style="font-family:var(--font-head);font-size:18px;font-weight:700">@u.Nombre</div>
+        <div class="text-sm text-muted mt-1">@u.Email</div>
+        <span class="badge badge-green mt-2">Usuario activo</span>
       </div>
-
-      <!-- Edit form -->
-      <div class="card">
-        <div class="card-title mb-1">Actualizar Información</div>
-        <div class="card-desc mb-6">Los cambios recalcularán automáticamente tu meta calórica</div>
-
-        <form method="post" action="/Perfil/Actualizar">
-          <div class="grid grid-2 gap-4">
-            <div class="form-group">
-              <label class="form-label">Peso (kg)</label>
-              <input type="number" name="peso" step="0.1" class="form-control"
-                     value="@u.Peso" min="30" max="300" required />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Altura (cm)</label>
-              <input type="number" name="altura" step="0.1" class="form-control"
-                     value="@u.Altura" min="100" max="250" required />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Edad</label>
-              <input type="number" name="edad" class="form-control"
-                     value="@u.Edad" min="10" max="120" required />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Nivel de Actividad</label>
-              <select name="actividad" class="form-control">
-                <option value="Sedentario" selected="@(u.NivelActividad=="Sedentario")">Sedentario</option>
-                <option value="Ligero" selected="@(u.NivelActividad=="Ligero")">Ligero (1-2 días/semana)</option>
-                <option value="Moderado" selected="@(u.NivelActividad=="Moderado")">Moderado (3-5 días/semana)</option>
-                <option value="Activo" selected="@(u.NivelActividad=="Activo")">Activo (6-7 días/semana)</option>
-                <option value="MuyActivo" selected="@(u.NivelActividad=="MuyActivo")">Muy Activo (2x al día)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="alert alert-info mt-2" style="font-size:var(--font-size-xs)">
-            ℹ️ La meta calórica se recalcula con la fórmula <strong>Mifflin-St Jeor</strong> al guardar.
-            Puedes cambiar la fórmula en la vista de Seguimiento.
-          </div>
-
-          <div class="flex gap-3 mt-4">
-            <button type="submit" class="btn btn-primary">Guardar cambios</button>
-            <a href="/Seguimiento" class="btn btn-outline">Cancelar</a>
-          </div>
-        </form>
+      <div class="text-sm">
+        <div class="flex justify-between mb-3"><span class="text-muted">Meta calórica</span><strong style="color:var(--green)">@((int)u.MetaCalorica) kcal</strong></div>
+        <div class="flex justify-between mb-3"><span class="text-muted">Edad</span><span>@u.Edad años</span></div>
+        <div class="flex justify-between mb-3"><span class="text-muted">Peso</span><span>@u.Peso kg</span></div>
+        <div class="flex justify-between mb-3"><span class="text-muted">Altura</span><span>@u.Altura cm</span></div>
+        <div class="flex justify-between mb-3"><span class="text-muted">Género</span><span>@(u.Genero == "M" ? "Masculino" : "Femenino")</span></div>
+        <div class="flex justify-between"><span class="text-muted">Actividad</span><span>@u.NivelActividad</span></div>
       </div>
     </div>
-  }
-</div>
+
+    <!-- FORM EDICION -->
+    <div class="card">
+      <div style="font-family:var(--font-head);font-size:15px;font-weight:700;margin-bottom:6px">Actualizar Información</div>
+      <div class="text-sm text-muted mb-4">Los cambios recalcularán automáticamente tu meta calórica</div>
+
+      <form method="post" action="/Perfil/Actualizar">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Peso (kg)</label>
+            <input type="number" name="peso" step="0.1" class="form-control" value="@u.Peso" min="30" max="300" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Altura (cm)</label>
+            <input type="number" name="altura" step="0.1" class="form-control" value="@u.Altura" min="100" max="250" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Edad</label>
+            <input type="number" name="edad" class="form-control" value="@u.Edad" min="10" max="120" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nivel de Actividad</label>
+            <select name="actividad" class="form-control">
+              <option value="Sedentario" selected="@(u.NivelActividad=="Sedentario")">Sedentario</option>
+              <option value="Ligero" selected="@(u.NivelActividad=="Ligero")">Ligero (1-2 días/semana)</option>
+              <option value="Moderado" selected="@(u.NivelActividad=="Moderado")">Moderado (3-5 días/semana)</option>
+              <option value="Activo" selected="@(u.NivelActividad=="Activo")">Activo (6-7 días/semana)</option>
+              <option value="MuyActivo" selected="@(u.NivelActividad=="MuyActivo")">Muy Activo (2x al día)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="alert alert-info text-xs">
+          ℹ️ La meta calórica se recalcula con la fórmula <strong>Mifflin-St Jeor</strong> al guardar.
+          Puedes cambiar la fórmula en la vista del Dashboard.
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:12px">
+          <button type="submit" class="btn btn-primary">Guardar cambios</button>
+          <a href="/Seguimiento" class="btn btn-ghost">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── NUTRIÓLOGO VINCULADO ── -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <div class="card-title">🩺 Mi Nutriólogo</div>
+    </div>
+    @if (nutriologo != null)
+    {
+      <div style="display:flex;align-items:center;gap:14px;background:var(--bg3);padding:14px;border-radius:10px">
+        <div class="patient-avatar">@(string.IsNullOrEmpty(nutriologo.Nombre) ? "?" : nutriologo.Nombre.Substring(0,1))</div>
+        <div style="flex:1">
+          <div style="font-weight:600">@nutriologo.Nombre</div>
+          <div class="text-xs text-muted">@nutriologo.Especialidad · Cédula @nutriologo.Cedula · @nutriologo.AniosExp años de exp.</div>
+          <div class="text-xs text-muted">@nutriologo.Email</div>
+        </div>
+        <form method="post" action="/Seguimiento/DesvincularNutriologo"
+              onsubmit="return confirm('¿Seguro que quieres desvincularte de @nutriologo.Nombre? Dejarán de tener acceso a tu seguimiento.');">
+          <button type="submit" class="btn btn-danger btn-sm">Desvincularme</button>
+        </form>
+      </div>
+    }
+    else
+    {
+      <div class="text-sm text-muted">No tienes un nutriólogo vinculado. Cuando un nutriólogo te envíe una solicitud, aparecerá en tu Dashboard para que la apruebes.</div>
+    }
+  </div>
+}

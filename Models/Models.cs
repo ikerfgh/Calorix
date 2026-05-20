@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Calorix.Models;
 
 public class Alimento
@@ -35,7 +37,20 @@ public class Nutriologo
     public string Especialidad { get; set; } = "";
     public int AniosExp { get; set; }
     public bool Validado { get; set; }
+    public bool EsAdmin { get; set; }
     public List<int> PacienteIds { get; set; } = new();
+}
+
+public class DocumentoNutriologo
+{
+    public int Id { get; set; }
+    public int NutriologoId { get; set; }
+    public string NombreOriginal { get; set; } = "";
+    public string RutaRelativa { get; set; } = "";
+    public string ContentType { get; set; } = "";
+    public long Tamano { get; set; }
+    public DateTime FechaSubida { get; set; } = DateTime.Now;
+    public string Estado { get; set; } = "pendiente"; // pendiente | aprobado | rechazado
 }
 
 public class RegistroComida
@@ -56,6 +71,8 @@ public class RegistroComida
 
 public class IngredienteReceta
 {
+    public int Id { get; set; }
+    public int RecetaId { get; set; }
     public int AlimentoId { get; set; }
     public float Cantidad { get; set; }
 }
@@ -71,14 +88,18 @@ public class Receta
     public float CarbosTotal { get; set; }
     public float GrasasTotal { get; set; }
     public int UsuarioId { get; set; }
+    public int? CreadaPorNutriologoId { get; set; }
     public DateTime FechaCreacion { get; set; }
 }
 
 public class ComidaPlan
 {
+    public int Id { get; set; }
+    public int PlanAlimenticioId { get; set; }
     public string Momento { get; set; } = "";
     public string Descripcion { get; set; } = "";
     public float Calorias { get; set; }
+    public int? RecetaId { get; set; }
     public List<int> AlimentoIds { get; set; } = new();
 }
 
@@ -93,6 +114,7 @@ public class PlanAlimenticio
     public bool Activo { get; set; }
 }
 
+[NotMapped]
 public class ResumenDiario
 {
     public DateTime Fecha { get; set; }
@@ -106,6 +128,7 @@ public class ResumenDiario
     public float PorcentajeCumplimiento { get; set; }
 }
 
+[NotMapped]
 public class EstadisticasSemana
 {
     public Dictionary<string, float> DatosPorDia { get; set; } = new();
@@ -113,6 +136,7 @@ public class EstadisticasSemana
     public float TotalSemana { get; set; }
 }
 
+[NotMapped]
 public class MacrosRecomendados
 {
     public float CaloriasMeta { get; set; }
@@ -120,4 +144,54 @@ public class MacrosRecomendados
     public float CarbosGramos { get; set; }
     public float GrasasGramos { get; set; }
     public string Formula { get; set; } = "";
+}
+
+public class RegistroPeso
+{
+    public int Id { get; set; }
+    public int UsuarioId { get; set; }
+    public float Peso { get; set; }
+    public DateTime Fecha { get; set; } = DateTime.Now;
+    public string? Notas { get; set; }
+}
+
+public class Observacion
+{
+    public int Id { get; set; }
+    public int NutriologoId { get; set; }
+    public int UsuarioId { get; set; }
+    public int? PlanId { get; set; }
+    public string Texto { get; set; } = "";
+    public DateTime Fecha { get; set; } = DateTime.Now;
+    public bool Leida { get; set; } = false;
+}
+
+public class SolicitudVinculacion
+{
+    public int Id { get; set; }
+    public int NutriologoId { get; set; }
+    public int UsuarioId { get; set; }
+    public string Estado { get; set; } = "pendiente"; // pendiente | aprobada | rechazada
+    public DateTime Fecha { get; set; } = DateTime.Now;
+    public DateTime? FechaRespuesta { get; set; }
+}
+
+[NotMapped]
+public class ResumenRango
+{
+    public DateTime Desde { get; set; }
+    public DateTime Hasta { get; set; }
+    public string Etiqueta { get; set; } = "";
+    public List<RegistroComida> Registros { get; set; } = new();
+    public Dictionary<string, float> CaloriasPorDia { get; set; } = new();
+    public Dictionary<string, float> PesoPorDia { get; set; } = new();
+    public float TotalCalorias { get; set; }
+    public float PromedioCaloriasDia { get; set; }
+    public float TotalProteinas { get; set; }
+    public float TotalCarbos { get; set; }
+    public float TotalGrasas { get; set; }
+    public float MetaCalorica { get; set; }
+    public float PorcentajePromedio { get; set; }
+    public float PesoActual { get; set; }
+    public float PesoInicial { get; set; }
 }

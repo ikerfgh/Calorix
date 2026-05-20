@@ -27,27 +27,45 @@ public class AlimentosController : Controller
     {
         if (!CheckAuth(out int userId)) return RedirectToAction("Login", "Home");
 
+        if (string.IsNullOrWhiteSpace(nombre))
+        {
+            TempData["Err"] = "El nombre de la receta es obligatorio.";
+            return RedirectToAction("Index");
+        }
+
         var ingredientes = new List<IngredienteReceta>();
         if (!string.IsNullOrEmpty(ingredientesJson))
         {
             try
             {
-                var raw = System.Text.Json.JsonSerializer.Deserialize<List<Dictionary<string, JsonElement>>>(ingredientesJson);
+                var opts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var raw = JsonSerializer.Deserialize<List<Dictionary<string, JsonElement>>>(ingredientesJson, opts);
                 if (raw != null)
                     foreach (var item in raw)
-                        ingredientes.Add(new IngredienteReceta
+                    {
+                        int aId = 0;
+                        float cant = 0;
+                        foreach (var kv in item)
                         {
-                            AlimentoId = item["alimentoId"].GetInt32(),
-                            Cantidad = item["cantidad"].GetSingle()
-                        });
+                            var key = kv.Key.ToLowerInvariant();
+                            if (key == "alimentoid") aId = kv.Value.GetInt32();
+                            else if (key == "cantidad") cant = kv.Value.GetSingle();
+                        }
+                        if (aId > 0 && cant > 0)
+                            ingredientes.Add(new IngredienteReceta { AlimentoId = aId, Cantidad = cant });
+                    }
             }
             catch { }
         }
 
-        if (ingredientes.Count > 0)
-            _facade.CrearReceta(userId, nombre, descripcion, ingredientes);
+        if (ingredientes.Count == 0)
+        {
+            TempData["Err"] = "Agrega al menos un ingrediente válido.";
+            return RedirectToAction("Index");
+        }
 
-        TempData["Msg"] = "Receta creada exitosamente.";
+        var receta = _facade.CrearReceta(userId, nombre.Trim(), descripcion ?? "", ingredientes);
+        TempData["Msg"] = $"✓ Receta \"{receta.Nombre}\" creada ({(int)receta.CaloriasTotal} kcal/porción).";
         return RedirectToAction("Index");
     }
 
