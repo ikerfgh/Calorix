@@ -1,0 +1,116 @@
+@using Calorix.Models
+@{
+    ViewData["Title"] = "Mis Planes";
+    var planes = ViewBag.Planes as List<PlanAlimenticio> ?? new List<PlanAlimenticio>();
+    var observaciones = ViewBag.Observaciones as List<Observacion> ?? new List<Observacion>();
+    int noLeidas = observaciones.Count(o => !o.Leida);
+}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Mis Planes</div>
+    <div class="page-subtitle">Planes alimenticios y observaciones de tu nutriólogo</div>
+  </div>
+</div>
+
+<div class="grid-2 grid-misplanes" style="align-items:start">
+  <!-- ── PLANES ── -->
+  <div>
+    <div class="section-hd">
+      <div class="section-title">Planes asignados (@planes.Count)</div>
+    </div>
+
+    @if (!planes.Any())
+    {
+      <div class="empty">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">Sin planes aún</div>
+        <div>Tu nutriólogo aún no te ha asignado un plan</div>
+      </div>
+    }
+    else
+    {
+      <div class="grid-2">
+        @foreach (var plan in planes.OrderByDescending(p => p.FechaCreacion))
+        {
+          <div class="plan-card">
+            <div class="plan-card-header">
+              <div>
+                <div style="font-family:var(--font-head);font-size:15px;font-weight:700">@plan.Nombre</div>
+                <div class="text-xs text-muted">@plan.FechaCreacion.ToString("dd/MM/yyyy")</div>
+              </div>
+              @if (plan.Activo) { <span class="badge badge-green">Activo</span> }
+            </div>
+            @foreach (var c in plan.Comidas)
+            {
+              <div class="plan-meal-row">
+                <span class="plan-meal-label">@c.Momento</span>
+                <span class="plan-meal-desc">@c.Descripcion</span>
+                @if (c.Calorias > 0) { <span class="plan-meal-cal">@c.Calorias kcal</span> }
+              </div>
+            }
+            @if (plan.Comidas.Any())
+            {
+              <div class="text-xs text-muted">Total: <strong style="color:var(--green)">@plan.Comidas.Sum(c => c.Calorias) kcal</strong></div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- ── OBSERVACIONES ── -->
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📨 Observaciones</div>
+        @if (noLeidas > 0)
+        {
+          <span class="badge badge-amber">@noLeidas nueva(s)</span>
+        }
+      </div>
+
+      @if (!observaciones.Any())
+      {
+        <div class="empty" style="padding:32px 16px">
+          <div class="empty-icon">💬</div>
+          <div class="empty-title" style="font-size:14px">Sin observaciones</div>
+          <div class="text-xs text-muted">Tu nutriólogo aún no te ha escrito</div>
+        </div>
+      }
+      else
+      {
+        <div style="display:flex;flex-direction:column;gap:10px">
+          @foreach (var o in observaciones)
+          {
+            <div style="background:var(--bg3);border-radius:8px;padding:12px;border-left:3px solid @(o.Leida ? "var(--border)" : "var(--green)")">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs text-muted">@o.Fecha.ToString("dd/MM/yyyy HH:mm")</span>
+                @if (!o.Leida)
+                {
+                  <span class="badge badge-green" style="font-size:10px">Nueva</span>
+                }
+              </div>
+              <div class="text-sm" style="white-space:pre-wrap">@o.Texto</div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  @if (noLeidas > 0)
+  {
+    <text>
+    setTimeout(() => {
+      fetch('/MisPlanes/MarcarLeidas', { method: 'POST' });
+    }, 2000);
+    </text>
+  }
+});
+</script>
+}

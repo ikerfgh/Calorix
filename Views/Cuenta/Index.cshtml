@@ -1,0 +1,103 @@
+@{
+    ViewData["Title"] = "Crear cuenta";
+    Layout = null;
+    var form = ViewBag.Form;
+    string nombre = form?.nombre ?? "";
+    string email = form?.email ?? "";
+    int edad = form?.edad ?? 0;
+    float peso = form?.peso ?? 0f;
+    float altura = form?.altura ?? 0f;
+    string genero = form?.genero ?? "F";
+    string nivelActividad = form?.nivelActividad ?? "Moderado";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calorix — Crear cuenta de usuario</title>
+  <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+<div class="login-page">
+  <div class="login-wrap" style="width:560px">
+    <div class="login-logo">
+      <div class="login-logo-mark">🌿 Calorix</div>
+      <div class="login-logo-sub">Crea tu cuenta de usuario</div>
+    </div>
+
+    <div class="login-card">
+      <h2>Crear cuenta de usuario</h2>
+
+      @if (ViewBag.Error != null)
+      {
+        <div class="alert alert-error">@ViewBag.Error</div>
+      }
+
+      <form method="post" action="/Cuenta/Registrar">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nombre completo *</label>
+            <input type="text" name="nombre" class="form-control" placeholder="María García" value="@nombre" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email *</label>
+            <input type="email" name="email" class="form-control" placeholder="usuario@email.com" value="@email" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Contraseña *</label>
+            <input type="password" name="password" class="form-control" placeholder="••••••••" minlength="4" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Edad *</label>
+            <input type="number" name="edad" class="form-control" placeholder="28" min="10" max="100" value="@(edad>0?edad.ToString():"")" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Peso (kg) *</label>
+            <input type="number" step="0.1" name="peso" class="form-control" placeholder="65.0" min="20" max="300" value="@(peso>0?peso.ToString("0.#"):"")" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Altura (cm) *</label>
+            <input type="number" step="0.1" name="altura" class="form-control" placeholder="165" min="80" max="250" value="@(altura>0?altura.ToString("0.#"):"")" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Género *</label>
+            <select name="genero" class="form-control" required>
+              <option value="F" selected="@(genero=="F")">Femenino</option>
+              <option value="M" selected="@(genero=="M")">Masculino</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nivel de actividad *</label>
+            <select name="nivelActividad" class="form-control" required>
+              <option value="Sedentario" selected="@(nivelActividad=="Sedentario")">Sedentario</option>
+              <option value="Ligero" selected="@(nivelActividad=="Ligero")">Ligero</option>
+              <option value="Moderado" selected="@(nivelActividad=="Moderado")">Moderado</option>
+              <option value="Activo" selected="@(nivelActividad=="Activo")">Activo</option>
+              <option value="MuyActivo" selected="@(nivelActividad=="MuyActivo")">Muy activo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="alert alert-info text-xs">
+          ℹ️ Calcularemos tu meta calórica diaria automáticamente con la fórmula Mifflin-St Jeor. Podrás cambiarla en tu perfil.
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full btn-lg mt-4">Crear cuenta →</button>
+      </form>
+
+      <div class="login-footer">
+        ¿Ya tienes cuenta? <a href="/Home/Login" style="color:var(--green);font-weight:600">Inicia sesión</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="~/js/site.js"></script>
+</body>
+</html>

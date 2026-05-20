@@ -13,6 +13,7 @@ public class PerfilController : Controller
     {
         if (!CheckAuth(out int userId)) return RedirectToAction("Login", "Home");
         ViewBag.Usuario = _facade.ObtenerPerfil(userId);
+        ViewBag.NutriologoActual = _facade.ObtenerNutriologoDelUsuario(userId);
         return View();
     }
 

@@ -1,25 +1,40 @@
+using Calorix.Data;
 using Calorix.Patterns.Facade;
+using Calorix.Patterns.Singleton;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Falta ConnectionStrings:DefaultConnection en appsettings.json");
+//Singleton
+DatabaseConnection.Initialize(connectionString);
+
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(60);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+builder.Services.AddDbContext<CalorixDbContext>(options =>
+    options.UseSqlite(DatabaseConnection.Instance.ConnectionString));
 builder.Services.AddScoped<ICalorixFacade, CalorixFacade>();
 
 var app = builder.Build();
+
+using (var db = DatabaseConnection.Instance.CreateContext())
+{
+    DbInitializer.Seed(db);
+}
 
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();

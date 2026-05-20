@@ -5,178 +5,332 @@
     var busqueda = ViewBag.Busqueda as List<object> ?? new List<object>();
     var q = (string)ViewBag.Q ?? "";
     int pacienteSeleccionado = ViewBag.PacienteSeleccionado ?? 0;
-    var resumenPaciente = ViewBag.ResumenPaciente as dynamic;
+    var resumen = ViewBag.ResumenRango as ResumenRango;
+    var observaciones = ViewBag.Observaciones as List<Observacion> ?? new List<Observacion>();
+    var planesPac = ViewBag.PlanesPaciente as List<PlanAlimenticio> ?? new List<PlanAlimenticio>();
+    string vista = (string)ViewBag.Vista ?? "dia";
+    string fechaActual = (string)ViewBag.FechaActual ?? DateTime.Today.ToString("yyyy-MM-dd");
+    var calJson = (string)ViewBag.CaloriasJson ?? "{}";
+    var pesoJson = (string)ViewBag.PesoJson ?? "{}";
+    var dayDetailsJson = (string)ViewBag.DayDetailsJson ?? "{}";
+
+    string LinkBase(string v) => $"/Pacientes?pacienteId={pacienteSeleccionado}&vista={v}&fecha={fechaActual}";
+    string LinkOffset(int off) => $"/Pacientes?pacienteId={pacienteSeleccionado}&vista={vista}&fecha={fechaActual}&offset={off}";
 }
 
 <div class="page-header">
   <div>
     <div class="page-title">Mis Pacientes</div>
-    <div class="page-subtitle">@pacientes.Count paciente(s) activos</div>
+    <div class="page-subtitle">@pacientes.Count paciente(s) activo(s)</div>
   </div>
+  <button type="button" class="btn btn-primary" onclick="openModal('modal-vincular')">+ Vincular Paciente</button>
 </div>
 
-<div class="page-body">
-  <div class="grid" style="grid-template-columns:320px 1fr;gap:var(--space-6);align-items:start">
-    <!-- Panel izquierdo: lista + búsqueda -->
-    <div>
-      <!-- Buscar usuarios -->
-      <div class="card mb-4">
-        <div class="card-title mb-3">Agregar Paciente</div>
-        <form method="get" action="/Pacientes">
-          <div class="input-group mb-3">
-            <span class="input-icon">🔍</span>
-            <input type="text" name="q" value="@q" class="form-control" placeholder="Buscar por nombre o email..." />
-          </div>
-          <button type="submit" class="btn btn-secondary btn-sm btn-full">Buscar usuarios</button>
-        </form>
-
-        @if (!string.IsNullOrEmpty(q))
-        {
-          var usuarios = busqueda.Cast<Usuario>().ToList();
-          <div class="mt-3">
-            @if (!usuarios.Any())
-            {
-              <p class="text-sm text-muted">Sin resultados para "@q"</p>
-            }
-            else
-            {
-              @foreach (var u in usuarios)
-              {
-                <div class="flex items-center justify-between p-3 rounded-lg mb-2" style="background:var(--color-muted)">
-                  <div>
-                    <div class="text-sm font-medium">@u.Nombre</div>
-                    <div class="text-xs text-muted">@u.Email</div>
-                  </div>
-                  @if (pacientes.Any(p => p.Id == u.Id))
-                  {
-                    <span class="badge badge-success">Vinculado</span>
-                  }
-                  else
-                  {
-                    <button class="btn btn-primary btn-sm" onclick="vincularPaciente(@u.Id)">Vincular</button>
-                  }
-                </div>
-              }
-            }
-          </div>
-        }
+<div class="grid-2 grid-pat" style="align-items:start">
+  <!-- ── PANEL IZQUIERDO ── -->
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Pacientes Activos</div>
       </div>
-
-      <!-- Lista de pacientes -->
-      <div class="card">
-        <div class="card-title mb-3">Pacientes Activos</div>
-        @if (!pacientes.Any())
-        {
-          <div style="text-align:center;padding:2rem;color:var(--color-muted-foreground)">
-            <div style="font-size:2.5rem;margin-bottom:.75rem">👥</div>
-            <div class="text-sm">Sin pacientes vinculados aún</div>
-          </div>
-        }
-        else
-        {
-          @foreach (var p in pacientes)
-          {
-            <a href="/Pacientes?pacienteId=@p.Id" class="paciente-card mb-3 @(pacienteSeleccionado==p.Id?"selected":"")">
-              <div class="paciente-avatar">@p.Nombre[0]</div>
-              <div>
-                <div class="text-sm font-semibold">@p.Nombre</div>
-                <div class="text-xs text-muted">@p.Email</div>
-                <div class="text-xs text-muted">Meta: @((int)p.MetaCalorica) kcal</div>
-              </div>
-            </a>
-          }
-        }
-      </div>
-    </div>
-
-    <!-- Panel derecho: resumen paciente -->
-    <div>
-      @if (pacienteSeleccionado > 0 && resumenPaciente != null)
+      @if (!pacientes.Any())
       {
-        var pac = pacientes.FirstOrDefault(p => p.Id == pacienteSeleccionado);
-        float totalCal = resumenPaciente.TotalCalorias;
-        float meta = resumenPaciente.MetaCalorica;
-        float pct = resumenPaciente.PorcentajeCumplimiento;
-        var registros = (List<RegistroComida>)resumenPaciente.Registros;
-
-        <div class="card mb-4">
-          <div class="flex items-center gap-4">
-            <div class="paciente-avatar" style="width:52px;height:52px;font-size:1.5rem">@pac?.Nombre[0]</div>
-            <div>
-              <div class="font-semibold text-lg">@pac?.Nombre</div>
-              <div class="text-sm text-muted">Historial de hoy — @DateTime.Today.ToString("dd/MM/yyyy")</div>
-            </div>
-            <div style="margin-left:auto;text-align:right">
-              <div class="text-2xl font-bold" style="color:var(--color-primary)">@((int)totalCal)</div>
-              <div class="text-xs text-muted">de @((int)meta) kcal</div>
-            </div>
-          </div>
-          <div class="progress-track mt-4" style="height:8px">
-            <div class="progress-fill @(pct>=90?"success":pct>=110?"danger":"")" style="width:@(Math.Min(pct,100))%"></div>
-          </div>
-        </div>
-
-        <div class="grid grid-3 mb-4">
-          <div class="stat-card">
-            <div class="stat-label">Proteínas</div>
-            <div class="stat-value" style="color:var(--color-blue-500)">@((int)resumenPaciente.TotalProteinas)g</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Carbos</div>
-            <div class="stat-value" style="color:var(--color-orange-500)">@((int)resumenPaciente.TotalCarbos)g</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Grasas</div>
-            <div class="stat-value" style="color:var(--color-purple-500)">@((int)resumenPaciente.TotalGrasas)g</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title mb-4">Registros del día</div>
-          @if (!registros.Any())
-          {
-            <p class="text-sm text-muted" style="text-align:center;padding:2rem">Sin registros hoy</p>
-          }
-          else
-          {
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Momento</th>
-                    <th>Alimento</th>
-                    <th>Cantidad</th>
-                    <th>Calorías</th>
-                    <th>Proteínas</th>
-                    <th>Carbos</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @foreach (var r in registros)
-                  {
-                    <tr>
-                      <td><span class="momento-badge momento-@r.Momento">@r.Momento</span></td>
-                      <td>@r.NombreAlimento</td>
-                      <td>@r.Cantidad @r.UnidadCantidad</td>
-                      <td><strong style="color:var(--color-primary)">@((int)r.Calorias)</strong></td>
-                      <td>@((int)r.Proteinas)g</td>
-                      <td>@((int)r.Carbohidratos)g</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          }
+        <div class="empty">
+          <div class="empty-icon">👥</div>
+          <div class="empty-title">Sin pacientes</div>
+          <div>Vincula tu primer paciente</div>
         </div>
       }
       else
       {
-        <div class="card" style="text-align:center;padding:4rem">
-          <div style="font-size:3.5rem;margin-bottom:1rem">👈</div>
-          <div class="font-semibold">Selecciona un paciente</div>
-          <div class="text-sm text-muted mt-2">Haz clic en un paciente para ver su resumen</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          @foreach (var p in pacientes)
+          {
+            <a href="/Pacientes?pacienteId=@p.Id" class="patient-card @(pacienteSeleccionado==p.Id?"selected":"")">
+              <div class="patient-avatar">@p.Nombre[0]</div>
+              <div style="flex:1">
+                <div style="font-weight:500;font-size:13px">@p.Nombre</div>
+                <div class="text-xs text-muted">@p.Email</div>
+                <div class="text-xs text-muted">Meta: @((int)p.MetaCalorica) kcal</div>
+              </div>
+              <span class="badge badge-green">Activo</span>
+            </a>
+          }
         </div>
       }
     </div>
   </div>
+
+  <!-- ── PANEL DERECHO ── -->
+  <div>
+    @if (pacienteSeleccionado > 0 && resumen != null)
+    {
+      var pac = pacientes.FirstOrDefault(p => p.Id == pacienteSeleccionado);
+      string inicial = !string.IsNullOrEmpty(pac?.Nombre) ? pac.Nombre.Substring(0, 1) : "?";
+
+      <!-- Header del paciente -->
+      <div class="card mb-4">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div class="patient-avatar" style="width:52px;height:52px;font-size:22px">@inicial</div>
+          <div style="flex:1">
+            <div style="font-family:var(--font-head);font-size:18px;font-weight:700">@pac?.Nombre</div>
+            <div class="text-xs text-muted">@pac?.Email · @pac?.NivelActividad · @pac?.Edad años · @pac?.Peso kg / @pac?.Altura cm</div>
+          </div>
+          <span class="badge badge-green">Activo</span>
+          <form method="post" action="/Pacientes/Desvincular"
+                onsubmit="return confirm('¿Seguro que quieres desvincular a @pac?.Nombre? Dejarás de tener acceso a su seguimiento.');"
+                style="margin:0">
+            <input type="hidden" name="pacienteId" value="@pacienteSeleccionado" />
+            <button type="submit" class="btn btn-danger btn-sm" title="Desvincular paciente">Desvincular</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Toggle vista + navegación + stats -->
+      <div class="card mb-4">
+        <div class="flex justify-between items-center mb-3" style="flex-wrap:wrap;gap:10px">
+          <div class="tabs" style="margin:0">
+            <a href="@LinkBase("dia")" class="tab @(vista=="dia"?"active":"")">Día</a>
+            <a href="@LinkBase("semana")" class="tab @(vista=="semana"?"active":"")">Semana</a>
+            <a href="@LinkBase("mes")" class="tab @(vista=="mes"?"active":"")">Mes</a>
+          </div>
+          <div class="flex items-center gap-2">
+            <a class="btn btn-ghost btn-sm" href="@LinkOffset(-1)">←</a>
+            <span class="text-sm" style="min-width:220px;text-align:center;font-family:var(--font-head)">@resumen.Etiqueta</span>
+            <a class="btn btn-ghost btn-sm" href="@LinkOffset(+1)">→</a>
+          </div>
+        </div>
+
+        <div class="pat-stat-row">
+          <div class="pat-stat">
+            <div class="pat-stat-val">@((int)resumen.PromedioCaloriasDia)</div>
+            <div class="pat-stat-lbl">@(vista=="dia" ? "kcal hoy" : "kcal/día prom.")</div>
+          </div>
+          <div class="pat-stat">
+            <div class="pat-stat-val" style="color:var(--blue)">@((int)resumen.TotalProteinas)g</div>
+            <div class="pat-stat-lbl">Proteínas</div>
+          </div>
+          <div class="pat-stat">
+            <div class="pat-stat-val" style="color:var(--amber)">@((int)resumen.TotalCarbos)g</div>
+            <div class="pat-stat-lbl">Carbos</div>
+          </div>
+          <div class="pat-stat">
+            <div class="pat-stat-val" style="color:@(resumen.PorcentajePromedio>=100?"var(--green)":"var(--amber)")">@((int)resumen.PorcentajePromedio)%</div>
+            <div class="pat-stat-lbl">Cumplimiento</div>
+          </div>
+          <div class="pat-stat pat-stat-peso">
+            <div class="pat-stat-val" style="color:var(--green)">@resumen.PesoActual.ToString("0.#")<span style="font-size:13px;color:var(--text3);font-weight:500;margin-left:3px">kg</span></div>
+            <div class="pat-stat-lbl">⚖️ Peso actual</div>
+          </div>
+        </div>
+
+        <div class="progress-bar" style="margin-top:8px">
+          <div class="progress-fill fill-green" style="width:@(Math.Min((double)resumen.PorcentajePromedio,100))%"></div>
+        </div>
+      </div>
+
+      <!-- Gráficas (apiladas para que cada una use ancho completo) -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="card-title">Calorías</div>
+          <span class="badge badge-green">@resumen.Registros.Count registro(s)</span>
+        </div>
+        <div class="bar-chart" id="patChart"></div>
+        <div class="text-xs text-muted mt-2" style="text-align:center">💡 Haz clic en un día para ver detalle de macros</div>
+      </div>
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="card-title">Peso</div>
+          @if (resumen.PesoInicial > 0 && resumen.PesoActual > 0)
+          {
+            var delta = resumen.PesoActual - resumen.PesoInicial;
+            <span class="badge @(delta < 0 ? "badge-green" : delta > 0 ? "badge-amber" : "badge-gray")">
+              @(delta == 0 ? "Sin cambio" : (delta > 0 ? "+" : "") + delta.ToString("0.#") + " kg")
+            </span>
+          }
+        </div>
+        @if (resumen.PesoActual > 0)
+        {
+          <div class="line-chart" id="patWeightChart"></div>
+        }
+        else
+        {
+          <div class="empty" style="padding:24px">
+            <div class="empty-icon">⚖️</div>
+            <div class="text-xs text-muted">Sin registros de peso en este rango</div>
+          </div>
+        }
+      </div>
+
+      <!-- Registros -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="card-title">Registros</div>
+          <span class="text-xs text-muted">@resumen.Desde.ToString("dd/MM") — @resumen.Hasta.ToString("dd/MM/yyyy")</span>
+        </div>
+        @if (!resumen.Registros.Any())
+        {
+          <div class="empty">
+            <div class="empty-icon">📋</div>
+            <div class="empty-title">Sin registros en este periodo</div>
+          </div>
+        }
+        else
+        {
+          @foreach (var r in resumen.Registros.OrderByDescending(x => x.Fecha).Take(20))
+          {
+            <div class="hist-row">
+              <div class="momento-dot momento-@r.Momento"></div>
+              <div style="flex:1">
+                <div style="font-weight:500">@r.NombreAlimento</div>
+                <div class="text-xs text-muted">@r.Fecha.ToString("dd/MM") · @r.Momento · @r.Cantidad @r.UnidadCantidad</div>
+              </div>
+              <span style="font-family:var(--font-head);color:var(--green)">@((int)r.Calorias) kcal</span>
+              <span style="color:var(--blue);margin-left:8px">@((int)r.Proteinas)g prot</span>
+            </div>
+          }
+          @if (resumen.Registros.Count > 20)
+          {
+            <div class="text-xs text-muted text-center mt-3">… y @(resumen.Registros.Count - 20) registros más</div>
+          }
+        }
+      </div>
+
+      <!-- Observaciones -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📨 Observaciones</div>
+          <span class="badge badge-gray">@observaciones.Count</span>
+        </div>
+
+        <form method="post" action="/Pacientes/EscribirObservacion" class="mb-4">
+          <input type="hidden" name="pacienteId" value="@pacienteSeleccionado" />
+          <div class="form-group">
+            <label class="form-label">Vincular a un plan (opcional)</label>
+            <select name="planId" class="form-control">
+              <option value="0">— Sin plan —</option>
+              @foreach (var pl in planesPac)
+              {
+                <option value="@pl.Id">@pl.Nombre (@pl.FechaCreacion.ToString("dd/MM/yyyy"))</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mensaje al paciente *</label>
+            <textarea name="texto" class="form-control" rows="3" placeholder="Escribe una observación, recomendación o ajuste para tu paciente..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Enviar observación</button>
+        </form>
+
+        @if (observaciones.Any())
+        {
+          <div class="sep"></div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            @foreach (var o in observaciones)
+            {
+              <div style="background:var(--bg3);border-radius:8px;padding:12px;border-left:3px solid @(o.Leida ? "var(--border)" : "var(--green)")">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-xs text-muted">@o.Fecha.ToString("dd/MM/yyyy HH:mm")</span>
+                  <span class="badge @(o.Leida ? "badge-gray" : "badge-amber")" style="font-size:10px">
+                    @(o.Leida ? "Leída" : "Sin leer")
+                  </span>
+                </div>
+                <div class="text-sm" style="white-space:pre-wrap">@o.Texto</div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+    else
+    {
+      <div class="card empty" style="padding:64px 24px">
+        <div class="empty-icon">👈</div>
+        <div class="empty-title">Selecciona un paciente</div>
+        <div>Haz clic en un paciente de la lista para ver su seguimiento</div>
+      </div>
+    }
+  </div>
 </div>
+
+<!-- ── MODAL VINCULAR ── -->
+<div class="overlay" id="modal-vincular" onclick="closeModal('modal-vincular')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">👥 Vincular Paciente</div>
+    <form method="get" action="/Pacientes">
+      <div class="form-group">
+        <label class="form-label">Buscar usuario</label>
+        <div class="search-wrap">
+          <i class="s-icon">🔍</i>
+          <input type="text" name="q" value="@q" class="form-control" placeholder="Nombre o email…" />
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Buscar</button>
+    </form>
+
+    @if (!string.IsNullOrEmpty(q))
+    {
+      var usuarios = busqueda.Cast<Usuario>().ToList();
+      <div class="sep"></div>
+      @if (!usuarios.Any())
+      {
+        <div class="text-sm text-muted text-center">Sin resultados para "@q"</div>
+      }
+      else
+      {
+        <div style="display:flex;flex-direction:column;gap:8px">
+          @foreach (var u in usuarios)
+          {
+            var yaVinculado = pacientes.Any(p => p.Id == u.Id);
+            <div class="patient-card" style="cursor:default">
+              <div class="patient-avatar">@u.Nombre[0]</div>
+              <div style="flex:1">
+                <div style="font-weight:500;font-size:13px">@u.Nombre</div>
+                <div class="text-xs text-muted">@u.Email</div>
+              </div>
+              @if (yaVinculado)
+              {
+                <span class="badge badge-amber">Vinculado</span>
+              }
+              else
+              {
+                <button type="button" class="btn btn-primary btn-sm" onclick="vincularPaciente(@u.Id)">Vincular</button>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <button type="button" class="btn btn-ghost btn-full mt-4" onclick="closeModal('modal-vincular')">Cerrar</button>
+  </div>
+</div>
+
+<!-- ── MODAL DETALLE DEL DÍA (paciente) ── -->
+<div class="overlay" id="modal-day-detail" onclick="closeModal('modal-day-detail')">
+  <div class="modal modal-wide" onclick="event.stopPropagation()">
+    <div id="day-detail-body"></div>
+    <button type="button" class="btn btn-ghost btn-full mt-4" onclick="closeModal('modal-day-detail')">Cerrar</button>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+  const _patCal = @Html.Raw(calJson);
+  const _patPeso = @Html.Raw(pesoJson);
+  const _patDayDetails = @Html.Raw(dayDetailsJson);
+  document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('patChart')) {
+      renderBarChart('patChart', _patCal, null, {
+        unit: 'kcal',
+        clickable: true,
+        onClick: (label) => {
+          const d = _patDayDetails[label];
+          if (d) openDayDetail(d);
+        }
+      });
+    }
+    if (document.getElementById('patWeightChart')) renderLineChart('patWeightChart', _patPeso, { unit: 'kg', color: '#3ddc84' });
+  });
+</script>
+}

@@ -1,0 +1,79 @@
+@using Calorix.Models
+@{
+    ViewData["Title"] = "Validación de Nutriólogos";
+    var pendientes = ViewBag.Pendientes as List<Nutriologo> ?? new();
+    var docsPorNutri = ViewBag.DocumentosPorNutriologo as Dictionary<int, List<DocumentoNutriologo>> ?? new();
+}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Validación de Nutriólogos</div>
+    <div class="page-subtitle">Revisa documentación y aprueba o rechaza cuentas profesionales</div>
+  </div>
+  <span class="badge badge-amber">@pendientes.Count pendiente(s)</span>
+</div>
+
+@if (!pendientes.Any())
+{
+  <div class="empty">
+    <div class="empty-icon">✅</div>
+    <div class="empty-title">Sin solicitudes pendientes</div>
+    <div>Todos los nutriólogos están validados.</div>
+  </div>
+}
+else
+{
+  <div style="display:flex;flex-direction:column;gap:18px">
+    @foreach (var n in pendientes)
+    {
+      var docs = docsPorNutri.TryGetValue(n.Id, out var lst) ? lst : new List<DocumentoNutriologo>();
+      <div class="card">
+        <div class="flex justify-between items-start mb-4" style="gap:16px;flex-wrap:wrap">
+          <div style="flex:1;min-width:240px">
+            <div style="font-family:var(--font-head);font-size:18px;font-weight:700">🩺 @n.Nombre</div>
+            <div class="text-sm text-muted mt-1">@n.Email</div>
+            <div class="text-sm mt-3">
+              <div class="flex gap-3 mb-1"><span class="text-muted">Cédula:</span><strong>@n.Cedula</strong></div>
+              <div class="flex gap-3 mb-1"><span class="text-muted">Especialidad:</span><span>@n.Especialidad</span></div>
+              <div class="flex gap-3"><span class="text-muted">Experiencia:</span><span>@n.AniosExp años</span></div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;flex-shrink:0">
+            <form method="post" action="/Admin/Aprobar" style="display:inline">
+              <input type="hidden" name="nutriologoId" value="@n.Id" />
+              <button type="submit" class="btn btn-primary">✓ Aprobar</button>
+            </form>
+            <form method="post" action="/Admin/Rechazar" style="display:inline">
+              <input type="hidden" name="nutriologoId" value="@n.Id" />
+              <button type="submit" class="btn btn-ghost">✗ Rechazar</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="sep"></div>
+        <div class="text-sm font-medium mb-3">Documentación adjunta (@docs.Count)</div>
+
+        @if (!docs.Any())
+        {
+          <div class="text-sm text-muted">⚠ El nutriólogo aún no ha subido documentos.</div>
+        }
+        else
+        {
+          <div style="display:flex;flex-direction:column;gap:8px">
+            @foreach (var d in docs)
+            {
+              <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+                <div style="min-width:0;flex:1">
+                  <a href="/Admin/Documento/@d.Id" target="_blank" style="color:var(--green);font-weight:600;text-decoration:none">📄 @d.NombreOriginal</a>
+                  <div class="text-xs text-muted mt-1">@d.FechaSubida.ToString("dd/MM/yyyy HH:mm") · @(d.Tamano / 1024) KB · @d.ContentType</div>
+                </div>
+                <a href="/Admin/Documento/@d.Id" target="_blank" class="btn btn-ghost btn-sm">Ver</a>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
