@@ -31,3 +31,5 @@ packages/
 
 # ASP.NET Core
 **/wwwroot/lib/
+
+graphify-out/cache/

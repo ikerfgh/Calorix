@@ -1,0 +1,476 @@
+{
+  ".claude/settings.local.json": {
+    "mtime": 1779479033.8581007,
+    "seen": 1790215838.5813813,
+    "ast_hash": "1bed104d4634da275a7d66cde107645e",
+    "semantic_hash": "1bed104d4634da275a7d66cde107645e"
+  },
+  ".devcontainer/devcontainer.json": {
+    "mtime": 1779305425.9381683,
+    "seen": 1790215838.5813847,
+    "ast_hash": "c56fa902ba2d339a4c421fccd7eff9bd",
+    "semantic_hash": "c56fa902ba2d339a4c421fccd7eff9bd"
+  },
+  "Calorix.csproj": {
+    "mtime": 1778171621.6358645,
+    "seen": 1790215838.5813863,
+    "ast_hash": "018dfdd9ce4f78fd79410745c8e70e81",
+    "semantic_hash": "018dfdd9ce4f78fd79410745c8e70e81"
+  },
+  "Controllers/AdminController.cs": {
+    "mtime": 1779302080.387934,
+    "seen": 1790215838.581387,
+    "ast_hash": "33ec27e0c70d58732b297768842af041",
+    "semantic_hash": "33ec27e0c70d58732b297768842af041"
+  },
+  "Controllers/AlimentosController.cs": {
+    "mtime": 1779301545.6502702,
+    "seen": 1790215838.5813875,
+    "ast_hash": "a7eb5095cb5135e1556daf75b8931d6a",
+    "semantic_hash": "a7eb5095cb5135e1556daf75b8931d6a"
+  },
+  "Controllers/CuentaController.cs": {
+    "mtime": 1778131525.62176,
+    "seen": 1790215838.581388,
+    "ast_hash": "4d50f966d722ac64f2e412a4218034d9",
+    "semantic_hash": "4d50f966d722ac64f2e412a4218034d9"
+  },
+  "Controllers/HomeController.cs": {
+    "mtime": 1777928163.7451966,
+    "seen": 1790215838.5813887,
+    "ast_hash": "85028bd3c4a7d01d3370446076733744",
+    "semantic_hash": "85028bd3c4a7d01d3370446076733744"
+  },
+  "Controllers/MisPlanesController.cs": {
+    "mtime": 1777999462.2144053,
+    "seen": 1790215838.5813894,
+    "ast_hash": "68bed512c7938d5a37c44b0de3360300",
+    "semantic_hash": "68bed512c7938d5a37c44b0de3360300"
+  },
+  "Controllers/NutriologoController.cs": {
+    "mtime": 1779494970.9751825,
+    "seen": 1790215838.5813901,
+    "ast_hash": "1dabda27cc1bccdb43cc6944a0a4e68e",
+    "semantic_hash": "1dabda27cc1bccdb43cc6944a0a4e68e"
+  },
+  "Controllers/PacientesController.cs": {
+    "mtime": 1779480020.7663624,
+    "seen": 1790215838.5813906,
+    "ast_hash": "7ef109ac181dcba86930b24927080b84",
+    "semantic_hash": "7ef109ac181dcba86930b24927080b84"
+  },
+  "Controllers/PerfilController.cs": {
+    "mtime": 1778171991.1289997,
+    "seen": 1790215838.581391,
+    "ast_hash": "4314ca4f42c278140e4bd78aa2b9ef7f",
+    "semantic_hash": "4314ca4f42c278140e4bd78aa2b9ef7f"
+  },
+  "Controllers/PlanesController.cs": {
+    "mtime": 1778357683.4520721,
+    "seen": 1790215838.5813918,
+    "ast_hash": "e725e832f83287077198196867c2be4f",
+    "semantic_hash": "e725e832f83287077198196867c2be4f"
+  },
+  "Controllers/RegistroController.cs": {
+    "mtime": 1777927068.3558261,
+    "seen": 1790215838.5813923,
+    "ast_hash": "bc2dc19d4d01a040fee203b1c8967e68",
+    "semantic_hash": "bc2dc19d4d01a040fee203b1c8967e68"
+  },
+  "Controllers/SeguimientoController.cs": {
+    "mtime": 1778171951.045716,
+    "seen": 1790215838.581393,
+    "ast_hash": "46c5af32cd6b1c4923899fa8db9c9013",
+    "semantic_hash": "46c5af32cd6b1c4923899fa8db9c9013"
+  },
+  "Data/CalorixDbContext.cs": {
+    "mtime": 1779301750.3165586,
+    "seen": 1790215838.5813935,
+    "ast_hash": "af501945a62d13865c4e06895a01c242",
+    "semantic_hash": "af501945a62d13865c4e06895a01c242"
+  },
+  "Data/DbInitializer.cs": {
+    "mtime": 1779474948.276428,
+    "seen": 1790215838.5813942,
+    "ast_hash": "b75c29ca747c44b80b392491f13bd6ad",
+    "semantic_hash": "b75c29ca747c44b80b392491f13bd6ad"
+  },
+  "Migrations/20260505011056_InitialCreate.Designer.cs": {
+    "mtime": 1777943456.0939412,
+    "seen": 1790215838.5813947,
+    "ast_hash": "73daba943c98fa37072d00d42962528b",
+    "semantic_hash": "73daba943c98fa37072d00d42962528b"
+  },
+  "Migrations/20260505011056_InitialCreate.cs": {
+    "mtime": 1777943456.0926676,
+    "seen": 1790215838.5813951,
+    "ast_hash": "f51732c7833957b00773f785ef48273a",
+    "semantic_hash": "f51732c7833957b00773f785ef48273a"
+  },
+  "Migrations/20260505164246_AddPesoYObservaciones.Designer.cs": {
+    "mtime": 1777999366.9986422,
+    "seen": 1790215838.5813956,
+    "ast_hash": "c37b9cf383f2f2d0c2a4c005446e84aa",
+    "semantic_hash": "c37b9cf383f2f2d0c2a4c005446e84aa"
+  },
+  "Migrations/20260505164246_AddPesoYObservaciones.cs": {
+    "mtime": 1777999366.9986422,
+    "seen": 1790215838.5813963,
+    "ast_hash": "95549dc4dfcac76fea9ba154739c33bb",
+    "semantic_hash": "95549dc4dfcac76fea9ba154739c33bb"
+  },
+  "Migrations/CalorixDbContextModelSnapshot.cs": {
+    "mtime": 1777999366.9986422,
+    "seen": 1790215838.581397,
+    "ast_hash": "535768ec0830851b94ead019723a3c7d",
+    "semantic_hash": "535768ec0830851b94ead019723a3c7d"
+  },
+  "Models/Models.cs": {
+    "mtime": 1779474941.9145224,
+    "seen": 1790215838.5813975,
+    "ast_hash": "ea7e20e9859ccd89fde7ac05a43271b6",
+    "semantic_hash": "ea7e20e9859ccd89fde7ac05a43271b6"
+  },
+  "Patterns/Facade/CalorixFacade.cs": {
+    "mtime": 1779480109.1224744,
+    "seen": 1790215838.5813982,
+    "ast_hash": "7576fcf316ab9d77b41531eb25d7d919",
+    "semantic_hash": "7576fcf316ab9d77b41531eb25d7d919"
+  },
+  "Patterns/Singleton/DatabaseConnection.cs": {
+    "mtime": 1779301818.3765185,
+    "seen": 1790215838.5813987,
+    "ast_hash": "1e0e1b7821fcbf7dbdabba7a71a0af0a",
+    "semantic_hash": "1e0e1b7821fcbf7dbdabba7a71a0af0a"
+  },
+  "Patterns/Strategy/CalculoNutricionalStrategy.cs": {
+    "mtime": 1777926979.943798,
+    "seen": 1790215838.5813992,
+    "ast_hash": "508cdfd5d76055415b059c6a8e01cc25",
+    "semantic_hash": "508cdfd5d76055415b059c6a8e01cc25"
+  },
+  "Program.cs": {
+    "mtime": 1779302058.3834686,
+    "seen": 1790215838.5814,
+    "ast_hash": "41c757f3038f61740ccf3ef344bb6cfd",
+    "semantic_hash": "41c757f3038f61740ccf3ef344bb6cfd"
+  },
+  "Properties/launchSettings.json": {
+    "mtime": 1778171411.6497645,
+    "seen": 1790215838.5814004,
+    "ast_hash": "77331e64bfacfb29e97ec75f6010ef15",
+    "semantic_hash": "77331e64bfacfb29e97ec75f6010ef15"
+  },
+  "Views/Admin/Index.cshtml": {
+    "mtime": 1778357743.6685226,
+    "seen": 1790215838.581401,
+    "ast_hash": "3099dd176af37acfd103645ac685c46a",
+    "semantic_hash": "3099dd176af37acfd103645ac685c46a"
+  },
+  "Views/Alimentos/Index.cshtml": {
+    "mtime": 1778020886.2314706,
+    "seen": 1790215838.5814016,
+    "ast_hash": "90fb2705aa458fc57b526a0ae8077056",
+    "semantic_hash": "90fb2705aa458fc57b526a0ae8077056"
+  },
+  "Views/Cuenta/Index.cshtml": {
+    "mtime": 1778131547.1295612,
+    "seen": 1790215838.581402,
+    "ast_hash": "673fbed18650a3c2ab80dea33b7da875",
+    "semantic_hash": "673fbed18650a3c2ab80dea33b7da875"
+  },
+  "Views/Home/Login.cshtml": {
+    "mtime": 1778131558.0085118,
+    "seen": 1790215838.5814025,
+    "ast_hash": "008ca1b0f2120444182c0fc63036a1c1",
+    "semantic_hash": "008ca1b0f2120444182c0fc63036a1c1"
+  },
+  "Views/MisPlanes/Index.cshtml": {
+    "mtime": 1778039476.9003842,
+    "seen": 1790215838.581403,
+    "ast_hash": "9a8a7313b6c04bba45ec8862831a23ce",
+    "semantic_hash": "9a8a7313b6c04bba45ec8862831a23ce"
+  },
+  "Views/Nutriologo/Index.cshtml": {
+    "mtime": 1779474925.3894632,
+    "seen": 1790215838.5814037,
+    "ast_hash": "d2878a645cf98d6053879a238361535c",
+    "semantic_hash": "d2878a645cf98d6053879a238361535c"
+  },
+  "Views/Pacientes/Index.cshtml": {
+    "mtime": 1779391187.8892472,
+    "seen": 1790215838.5814042,
+    "ast_hash": "941bf46542a76ea4985a5e5e5a2b6b8b",
+    "semantic_hash": "941bf46542a76ea4985a5e5e5a2b6b8b"
+  },
+  "Views/Perfil/Index.cshtml": {
+    "mtime": 1778172009.9462955,
+    "seen": 1790215838.5814047,
+    "ast_hash": "7f54daa644f23af0ebf30803234d7a95",
+    "semantic_hash": "7f54daa644f23af0ebf30803234d7a95"
+  },
+  "Views/Planes/Index.cshtml": {
+    "mtime": 1778357874.7040684,
+    "seen": 1790215838.5814052,
+    "ast_hash": "ae4455ced94300e1c3b2238715ddc28f",
+    "semantic_hash": "ae4455ced94300e1c3b2238715ddc28f"
+  },
+  "Views/Registro/Index.cshtml": {
+    "mtime": 1777960820.3890152,
+    "seen": 1790215838.5814059,
+    "ast_hash": "06674ba19eaece6cd0363e311e5e1c72",
+    "semantic_hash": "06674ba19eaece6cd0363e311e5e1c72"
+  },
+  "Views/Seguimiento/Index.cshtml": {
+    "mtime": 1778082709.8321629,
+    "seen": 1790215838.5814064,
+    "ast_hash": "3b73a8142e55d89a3329e2b9f501ebfd",
+    "semantic_hash": "3b73a8142e55d89a3329e2b9f501ebfd"
+  },
+  "Views/Shared/_Layout.cshtml": {
+    "mtime": 1778357777.339491,
+    "seen": 1790215838.581407,
+    "ast_hash": "31986d2c71a10856075ee114642c3ed8",
+    "semantic_hash": "31986d2c71a10856075ee114642c3ed8"
+  },
+  "Views/_ViewImports.cshtml": {
+    "mtime": 1777927224.3584456,
+    "seen": 1790215838.5814075,
+    "ast_hash": "a633348dd9bf59eb65f4b018924bf100",
+    "semantic_hash": "a633348dd9bf59eb65f4b018924bf100"
+  },
+  "Views/_ViewStart.cshtml": {
+    "mtime": 1777927224.605621,
+    "seen": 1790215838.581408,
+    "ast_hash": "7b09d3a4b92bb9dc30ed94eb716689f6",
+    "semantic_hash": "7b09d3a4b92bb9dc30ed94eb716689f6"
+  },
+  "appsettings.Development.json": {
+    "mtime": 1777926950.659506,
+    "seen": 1790215838.5814085,
+    "ast_hash": "477a525a47fc9bdbbf94690e6633d843",
+    "semantic_hash": "477a525a47fc9bdbbf94690e6633d843"
+  },
+  "appsettings.json": {
+    "mtime": 1777943316.7950814,
+    "seen": 1790215838.581409,
+    "ast_hash": "a7beecc071e0a56b6ea5de2dbacf5c8c",
+    "semantic_hash": "a7beecc071e0a56b6ea5de2dbacf5c8c"
+  },
+  "wwwroot/js/site.js": {
+    "mtime": 1778357863.5948787,
+    "seen": 1790215838.5814097,
+    "ast_hash": "5d5c9a7d677ddfc78f6262387305293d",
+    "semantic_hash": "5d5c9a7d677ddfc78f6262387305293d"
+  },
+  "README.md": {
+    "mtime": 1777918383.3048835,
+    "seen": 1790215838.5814106,
+    "ast_hash": "ad67c11c1abc9385ec460878f3ef474c",
+    "semantic_hash": "ad67c11c1abc9385ec460878f3ef474c"
+  },
+  "docs/diagramas/README.md": {
+    "mtime": 1778695377.7362626,
+    "seen": 1790215838.5814111,
+    "ast_hash": "e5bd797d429a1eb7d01d78fc2a63297f",
+    "semantic_hash": "e5bd797d429a1eb7d01d78fc2a63297f"
+  },
+  "docs/diagramas/cu1-gestion-alimentos.md": {
+    "mtime": 1778652300.234032,
+    "seen": 1790215838.5814116,
+    "ast_hash": "f47d48dd2dad9e9e9f8f4d11a38a7880",
+    "semantic_hash": "f47d48dd2dad9e9e9f8f4d11a38a7880"
+  },
+  "docs/diagramas/cu2-registro-comidas.md": {
+    "mtime": 1778652337.2107885,
+    "seen": 1790215838.581412,
+    "ast_hash": "bb392d2889e56d6992defe96222c99a9",
+    "semantic_hash": "bb392d2889e56d6992defe96222c99a9"
+  },
+  "docs/diagramas/cu3-seguimiento-nutricional.md": {
+    "mtime": 1778652364.8689642,
+    "seen": 1790215838.5814126,
+    "ast_hash": "27670e6d4dd7a0c501d6a3a446019d34",
+    "semantic_hash": "27670e6d4dd7a0c501d6a3a446019d34"
+  },
+  "docs/diagramas/cu4-gestion-pacientes.md": {
+    "mtime": 1778652376.5360346,
+    "seen": 1790215838.581413,
+    "ast_hash": "b9dabafa4c4e0c4577429554fba59894",
+    "semantic_hash": "b9dabafa4c4e0c4577429554fba59894"
+  },
+  "docs/diagramas/cu5-seguimiento-profesional.md": {
+    "mtime": 1778652409.7383447,
+    "seen": 1790215838.5814137,
+    "ast_hash": "fbbbe93f332365ebc81235653ac649ad",
+    "semantic_hash": "fbbbe93f332365ebc81235653ac649ad"
+  },
+  "docs/diagramas/cu6-planes-alimenticios.md": {
+    "mtime": 1778652453.4625914,
+    "seen": 1790215838.5814142,
+    "ast_hash": "74bb8d85c1d772b8d20cb406d4c6643a",
+    "semantic_hash": "74bb8d85c1d772b8d20cb406d4c6643a"
+  },
+  "docs/diagramas/cu7-perfil-personal.md": {
+    "mtime": 1778652478.4438152,
+    "seen": 1790215838.581415,
+    "ast_hash": "100898c6800ce9dd2c28cd9bb6bb78d9",
+    "semantic_hash": "100898c6800ce9dd2c28cd9bb6bb78d9"
+  },
+  "docs/diagramas/cu8-registro-profesional.md": {
+    "mtime": 1778652490.8065712,
+    "seen": 1790215838.5814168,
+    "ast_hash": "5fd992272ba08832a438354e243d07e5",
+    "semantic_hash": "5fd992272ba08832a438354e243d07e5"
+  },
+  "docs/diagramas/diagrama-clases-general.md": {
+    "mtime": 1778446335.280985,
+    "seen": 1790215838.5814176,
+    "ast_hash": "6bbc2a4bd73ce1780cf9b1f612456b7a",
+    "semantic_hash": "6bbc2a4bd73ce1780cf9b1f612456b7a"
+  },
+  "docs/diagramas/diagrama-flujo-datos.md": {
+    "mtime": 1778653510.1530037,
+    "seen": 1790215838.581418,
+    "ast_hash": "08fb3cff7894ea860159d79d08a09830",
+    "semantic_hash": "08fb3cff7894ea860159d79d08a09830"
+  },
+  "docs/diagramas/modelo-logico-bd.md": {
+    "mtime": 1778653502.5359745,
+    "seen": 1790215838.5814185,
+    "ast_hash": "284e4cbe491ad42db607a1f43edb6b77",
+    "semantic_hash": "284e4cbe491ad42db607a1f43edb6b77"
+  },
+  "docs/foda.md": {
+    "mtime": 1778737230.0671034,
+    "seen": 1790215838.581419,
+    "ast_hash": "a108860a4b035bb8f090c1ce5a510054",
+    "semantic_hash": "a108860a4b035bb8f090c1ce5a510054"
+  },
+  "docs/historias-usuario.md": {
+    "mtime": 1778695429.2365146,
+    "seen": 1790215838.5814195,
+    "ast_hash": "c5235ed64fc258cd0ef6c341a54cb4b2",
+    "semantic_hash": "c5235ed64fc258cd0ef6c341a54cb4b2"
+  },
+  "docs/kanban.md": {
+    "mtime": 1778737259.3439784,
+    "seen": 1790215838.5814202,
+    "ast_hash": "6a2b5f1384e0200d3569b07190f9ceb4",
+    "semantic_hash": "6a2b5f1384e0200d3569b07190f9ceb4"
+  },
+  "graphify-out/converted/pieces_2e9538b5.md": {
+    "mtime": 1790215437.1328332,
+    "seen": 1790215838.581421,
+    "ast_hash": "65aee43ceba7961ce30330db44fd31b7",
+    "semantic_hash": "65aee43ceba7961ce30330db44fd31b7"
+  },
+  "nimbalyst-local/plans/como-conecto-mi-cuenta-robust-treehouse.md": {
+    "mtime": 1778446597.0200276,
+    "seen": 1790215838.5814214,
+    "ast_hash": "dc87ff1fb28abf851b40f3fa5d8d2b83",
+    "semantic_hash": "dc87ff1fb28abf851b40f3fa5d8d2b83"
+  },
+  "nimbalyst-local/plans/continua-con-el-diagrama-proud-naur.md": {
+    "mtime": 1778378114.941962,
+    "seen": 1790215838.5814219,
+    "ast_hash": "10432b7174f794219d46ebb820eb9940",
+    "semantic_hash": "10432b7174f794219d46ebb820eb9940"
+  },
+  "nimbalyst-local/plans/de-que-se-trata-parallel-firefly.md": {
+    "mtime": 1777999214.9443517,
+    "seen": 1790215838.5814226,
+    "ast_hash": "3084d8d0e020dd4d401ac9e73e449031",
+    "semantic_hash": "3084d8d0e020dd4d401ac9e73e449031"
+  },
+  "nimbalyst-local/plans/en-la-otra-compu-curious-parnas.md": {
+    "mtime": 1779305266.3629434,
+    "seen": 1790215838.581423,
+    "ast_hash": "edf60537d4a00eefb82a00db64ff88e3",
+    "semantic_hash": "edf60537d4a00eefb82a00db64ff88e3"
+  },
+  "nimbalyst-local/plans/este-proyecto-esta-en-peaceful-pebble.md": {
+    "mtime": 1779302331.8216662,
+    "seen": 1790215838.5814235,
+    "ast_hash": "f1bc2c922c470af8e6c036c56efd53c8",
+    "semantic_hash": "f1bc2c922c470af8e6c036c56efd53c8"
+  },
+  "nimbalyst-local/plans/explicame-como-funciona-el-glimmering-goblet.md": {
+    "mtime": 1778447597.162765,
+    "seen": 1790215838.5814242,
+    "ast_hash": "47a6f29c6948d99b2153c9892868bd92",
+    "semantic_hash": "47a6f29c6948d99b2153c9892868bd92"
+  },
+  "nimbalyst-local/plans/explicame-como-funciona-el-groovy-rain.md": {
+    "mtime": 1779481309.7236753,
+    "seen": 1790215838.5814247,
+    "ast_hash": "b94dfaf25714b305375240cb113e8b4d",
+    "semantic_hash": "b94dfaf25714b305375240cb113e8b4d"
+  },
+  "nimbalyst-local/plans/explicame-como-funciona-el-happy-dongarra.md": {
+    "mtime": 1779479142.4637547,
+    "seen": 1790215838.5814252,
+    "ast_hash": "9734c3108eb8c1eefb28c677756e1ad8",
+    "semantic_hash": "9734c3108eb8c1eefb28c677756e1ad8"
+  },
+  "nimbalyst-local/plans/explicame-como-funciona-el-zazzy-tiger.md": {
+    "mtime": 1779480519.8622894,
+    "seen": 1790215838.5814257,
+    "ast_hash": "ad94d84987e35d6d8c17e3b5e3655fc1",
+    "semantic_hash": "ad94d84987e35d6d8c17e3b5e3655fc1"
+  },
+  "nimbalyst-local/plans/explicame-la-diferencia-entre-modular-pelican.md": {
+    "mtime": 1779495518.723881,
+    "seen": 1790215838.5814261,
+    "ast_hash": "14f6196e28761c877d3fc66e293a76bb",
+    "semantic_hash": "14f6196e28761c877d3fc66e293a76bb"
+  },
+  "nimbalyst-local/plans/explicame-que-funcion-hace-ethereal-taco.md": {
+    "mtime": 1779484115.010874,
+    "seen": 1790215838.5814266,
+    "ast_hash": "1d981faeaffadd53f0355b8b87100342",
+    "semantic_hash": "1d981faeaffadd53f0355b8b87100342"
+  },
+  "nimbalyst-local/plans/hay-un-problema-con-lively-scroll.md": {
+    "mtime": 1779391140.2137835,
+    "seen": 1790215838.581427,
+    "ast_hash": "3e973c56241ff647fd5fdf8f7e24417f",
+    "semantic_hash": "3e973c56241ff647fd5fdf8f7e24417f"
+  },
+  "nimbalyst-local/plans/necesito-hacer-una-exposicion-effervescent-dove.md": {
+    "mtime": 1779385407.9632778,
+    "seen": 1790215838.5814278,
+    "ast_hash": "9092832929c8cd824f4d7ca96651af57",
+    "semantic_hash": "9092832929c8cd824f4d7ca96651af57"
+  },
+  "nimbalyst-local/plans/necesito-que-hagas-el-floofy-wind.md": {
+    "mtime": 1778651013.0352826,
+    "seen": 1790215838.5814283,
+    "ast_hash": "88fc86ee3ad13f7f313c65a78de3c0cc",
+    "semantic_hash": "88fc86ee3ad13f7f313c65a78de3c0cc"
+  },
+  "nimbalyst-local/plans/necesito-que-hagas-el-spicy-moore.md": {
+    "mtime": 1778734924.6431806,
+    "seen": 1790215838.5814288,
+    "ast_hash": "3fa8a62cf51f65879865f36da9068a97",
+    "semantic_hash": "3fa8a62cf51f65879865f36da9068a97"
+  },
+  "nimbalyst-local/plans/necesito-que-me-expliques-enchanted-pebble.md": {
+    "mtime": 1779303135.753671,
+    "seen": 1790215838.5814292,
+    "ast_hash": "332681efb19f0a558cac81857f149ccc",
+    "semantic_hash": "332681efb19f0a558cac81857f149ccc"
+  },
+  "nimbalyst-local/plans/pasted-text-2026-05-07t16-44-41-txt-rev-zazzy-whistle.md": {
+    "mtime": 1778357367.5188794,
+    "seen": 1790215838.5814297,
+    "ast_hash": "165ef4f6dfb0f065b68eccdbc34f58c5",
+    "semantic_hash": "165ef4f6dfb0f065b68eccdbc34f58c5"
+  },
+  "nimbalyst-local/plans/story-user-las-historias-rustling-mitten.md": {
+    "mtime": 1778695299.4974995,
+    "seen": 1790215838.5814304,
+    "ast_hash": "86bd9cd4c24b1638e31111cc439cd03d",
+    "semantic_hash": "86bd9cd4c24b1638e31111cc439cd03d"
+  }
+}
