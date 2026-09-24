@@ -37,6 +37,7 @@ public static class DbInitializer
 
         // Añade columnas nuevas a tablas existentes (idempotente: ignora error si ya existen)
         TryAddColumn(db, "Nutriologos", "EsAdmin", "INTEGER NOT NULL DEFAULT 0");
+        TryAddColumn(db, "Nutriologos", "Rechazado", "INTEGER NOT NULL DEFAULT 0");
         TryAddColumn(db, "Recetas", "CreadaPorNutriologoId", "INTEGER NULL");
         TryAddColumn(db, "ComidaPlan", "RecetaId", "INTEGER NULL");
 
