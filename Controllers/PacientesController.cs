@@ -15,6 +15,7 @@ public class PacientesController : Controller
     {
         if (!CheckAuth(out int nutriologoId)) return RedirectToAction("Login", "Home");
 
+        ViewBag.NutriologoActual = _facade.ObtenerNutriologo(nutriologoId);
         ViewBag.Pacientes = _facade.ObtenerPacientes(nutriologoId);
         ViewBag.Busqueda = string.IsNullOrEmpty(q) ? new List<object>() : _facade.BuscarUsuarios(q).Cast<object>().ToList();
         ViewBag.Q = q;
@@ -81,6 +82,9 @@ public class PacientesController : Controller
     public IActionResult Vincular(int usuarioId)
     {
         if (!CheckAuth(out int nutriologoId)) return Json(new { ok = false, mensaje = "Sin sesión" });
+        var nutriologo = _facade.ObtenerNutriologo(nutriologoId);
+        if (nutriologo == null || !nutriologo.Validado)
+            return Json(new { ok = false, mensaje = "Tu cuenta aún no ha sido validada. No puedes vincular pacientes." });
         var (ok, mensaje) = _facade.EnviarSolicitudVinculacion(nutriologoId, usuarioId);
         return Json(new { ok, mensaje });
     }

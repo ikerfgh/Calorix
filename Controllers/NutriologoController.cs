@@ -39,7 +39,14 @@ public class NutriologoController : Controller
     [HttpPost]
     public IActionResult Registrar(string nombre, string email, string password, string cedula, string especialidad, int aniosExp)
     {
-        var nutriologo = _facade.RegistrarNutriologo(nombre, email, password, cedula, especialidad, aniosExp);
+        var (nutriologo, error) = _facade.RegistrarNutriologo(nombre, email, password, cedula, especialidad, aniosExp);
+        if (nutriologo == null)
+        {
+            ViewBag.Error = error ?? "No se pudo crear la cuenta.";
+            ViewBag.Form = new { nombre, email, cedula, especialidad, aniosExp };
+            ViewBag.YaRegistrado = false;
+            return View("Index");
+        }
         HttpContext.Session.SetString("UserId", nutriologo.Id.ToString());
         HttpContext.Session.SetString("UserRole", "Nutriologo");
         HttpContext.Session.SetString("UserName", nutriologo.Nombre);

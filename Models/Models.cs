@@ -37,6 +37,7 @@ public class Nutriologo
     public string Especialidad { get; set; } = "";
     public int AniosExp { get; set; }
     public bool Validado { get; set; }
+    public bool Rechazado { get; set; }
     public bool EsAdmin { get; set; }
     public List<int> PacienteIds { get; set; } = new();
 }

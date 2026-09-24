@@ -1,6 +1,8 @@
 @using Calorix.Models
 @{
     ViewData["Title"] = "Mis Pacientes";
+    var nutriologo = ViewBag.NutriologoActual as Nutriologo;
+    bool puedeVincular = nutriologo?.Validado == true;
     var pacientes = (List<Usuario>)ViewBag.Pacientes;
     var busqueda = ViewBag.Busqueda as List<object> ?? new List<object>();
     var q = (string)ViewBag.Q ?? "";
@@ -23,7 +25,20 @@
     <div class="page-title">Mis Pacientes</div>
     <div class="page-subtitle">@pacientes.Count paciente(s) activo(s)</div>
   </div>
-  <button type="button" class="btn btn-primary" onclick="openModal('modal-vincular')">+ Vincular Paciente</button>
+  @if (puedeVincular)
+  {
+    <button type="button" class="btn btn-primary" onclick="openModal('modal-vincular')">+ Vincular Paciente</button>
+  }
+  else
+  {
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+      <button type="button" class="btn btn-primary" disabled
+              title="Tu cuenta está pendiente de validación. No puedes vincular pacientes todavía.">
+        + Vincular Paciente
+      </button>
+      <span class="badge badge-amber" style="font-size:11px">⏳ Cuenta pendiente de validación</span>
+    </div>
+  }
 </div>
 
 <div class="grid-2 grid-pat" style="align-items:start">
@@ -291,6 +306,10 @@
               @if (yaVinculado)
               {
                 <span class="badge badge-amber">Vinculado</span>
+              }
+              else if (!puedeVincular)
+              {
+                <button type="button" class="btn btn-primary btn-sm" disabled title="Tu cuenta está pendiente de validación.">Vincular</button>
               }
               else
               {

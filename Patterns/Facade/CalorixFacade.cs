@@ -31,7 +31,7 @@ public interface ICalorixFacade
     bool ActualizarPerfil(int usuarioId, float peso, float altura, int edad, string actividad);
     (int id, string role)? Login(string email, string password);
     Nutriologo? ObtenerNutriologo(int id);
-    Nutriologo RegistrarNutriologo(string nombre, string email, string password, string cedula, string especialidad, int aniosExp);
+    (Nutriologo? nutriologo, string? error) RegistrarNutriologo(string nombre, string email, string password, string cedula, string especialidad, int aniosExp);
     (Usuario? usuario, string? error) RegistrarUsuario(string nombre, string email, string password, int edad, float peso, float altura, string genero, string nivelActividad);
     List<Usuario> BuscarUsuarios(string termino);
     List<Alimento> ObtenerTodosAlimentos();
@@ -440,17 +440,24 @@ public class CalorixFacade : ICalorixFacade
 
     public Nutriologo? ObtenerNutriologo(int id) => _db.Nutriologos.FirstOrDefault(n => n.Id == id);
 
-    public Nutriologo RegistrarNutriologo(string nombre, string email, string password, string cedula, string especialidad, int aniosExp)
+    public (Nutriologo? nutriologo, string? error) RegistrarNutriologo(string nombre, string email, string password, string cedula, string especialidad, int aniosExp)
     {
+        var emailNorm = (email ?? "").Trim().ToLower();
+        if (_db.Usuarios.Any(u => u.Email.ToLower() == emailNorm) ||
+            _db.Nutriologos.Any(x => x.Email.ToLower() == emailNorm))
+        {
+            return (null, "Ya existe una cuenta con ese correo.");
+        }
+
         var n = new Nutriologo
         {
-            Nombre = nombre, Email = email, Password = password,
+            Nombre = nombre, Email = emailNorm, Password = password,
             Cedula = cedula, Especialidad = especialidad, AniosExp = aniosExp,
             Validado = false, PacienteIds = new()
         };
         _db.Nutriologos.Add(n);
         _db.SaveChanges();
-        return n;
+        return (n, null);
     }
 
     public (Usuario? usuario, string? error) RegistrarUsuario(string nombre, string email, string password, int edad, float peso, float altura, string genero, string nivelActividad)
@@ -669,7 +676,7 @@ public class CalorixFacade : ICalorixFacade
 
     public List<Nutriologo> ObtenerNutriologosPendientes() =>
         _db.Nutriologos
-            .Where(n => !n.Validado && !n.EsAdmin)
+            .Where(n => !n.Validado && !n.Rechazado && !n.EsAdmin)
             .OrderBy(n => n.Id)
             .ToList();
 
@@ -678,6 +685,7 @@ public class CalorixFacade : ICalorixFacade
         var n = _db.Nutriologos.FirstOrDefault(x => x.Id == nutriologoId);
         if (n == null || n.EsAdmin) return false;
         n.Validado = aprobar;
+        n.Rechazado = !aprobar;
         // Marcar todos los documentos del nutriólogo con el estado correspondiente
         var docs = _db.DocumentosNutriologo.Where(d => d.NutriologoId == nutriologoId).ToList();
         foreach (var d in docs) d.Estado = aprobar ? "aprobado" : "rechazado";
