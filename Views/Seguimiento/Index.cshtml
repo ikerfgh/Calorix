@@ -52,7 +52,15 @@
     <div class="page-title">Dashboard</div>
     <div class="page-subtitle">@DateTime.Today.ToString("dddd, d 'de' MMMM yyyy", new System.Globalization.CultureInfo("es-MX"))</div>
   </div>
-  <form method="get" action="/Seguimiento" style="margin-left:auto">
+  <form method="get" action="/Reportes/Progreso" style="margin-left:auto;display:flex;gap:6px;align-items:center">
+    <select name="dias" class="form-control" style="width:auto;font-size:12px" aria-label="Periodo del reporte">
+      <option value="7">7 días</option>
+      <option value="30" selected>30 días</option>
+      <option value="90">90 días</option>
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm" id="btnReporteProgreso">⬇ Reporte PDF</button>
+  </form>
+  <form method="get" action="/Seguimiento" style="margin-left:8px">
     <select name="formula" class="form-control" onchange="this.form.submit()" style="width:auto;min-width:200px;font-size:12px">
       <option value="mifflin" selected="@(formula=="mifflin")">Mifflin-St Jeor</option>
       <option value="harris" selected="@(formula=="harris")">Harris-Benedict</option>
