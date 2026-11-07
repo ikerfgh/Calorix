@@ -20,6 +20,8 @@ builder.Services.AddSession(options =>
 builder.Services.AddDbContext<CalorixDbContext>(options =>
     options.UseSqlite(DatabaseConnection.Instance.ConnectionString));
 builder.Services.AddScoped<ICalorixFacade, CalorixFacade>();
+builder.Services.AddScoped<Calorix.Services.IReportePdfService, Calorix.Services.ReportePdfService>();
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community; // licencia gratuita (proyecto académico)
 
 var app = builder.Build();
 
