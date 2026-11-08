@@ -1,6 +1,7 @@
 using Calorix.Data;
 using Calorix.Models;
 using Calorix.Patterns.Strategy;
+using Calorix.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Calorix.Patterns.Facade;
@@ -431,10 +432,13 @@ public class CalorixFacade : ICalorixFacade
 
     public (int id, string role)? Login(string email, string password)
     {
-        var u = _db.Usuarios.FirstOrDefault(x => x.Email == email && x.Password == password);
-        if (u != null) return (u.Id, "Usuario");
-        var n = _db.Nutriologos.FirstOrDefault(x => x.Email == email && x.Password == password);
-        if (n != null) return (n.Id, "Nutriologo");
+        var emailNorm = (email ?? "").Trim().ToLower();
+        if (string.IsNullOrEmpty(emailNorm) || string.IsNullOrEmpty(password)) return null;
+
+        var u = _db.Usuarios.FirstOrDefault(x => x.Email.ToLower() == emailNorm);
+        if (u != null && PasswordService.Verify(u.Password, password)) return (u.Id, "Usuario");
+        var n = _db.Nutriologos.FirstOrDefault(x => x.Email.ToLower() == emailNorm);
+        if (n != null && PasswordService.Verify(n.Password, password)) return (n.Id, "Nutriologo");
         return null;
     }
 
@@ -451,7 +455,7 @@ public class CalorixFacade : ICalorixFacade
 
         var n = new Nutriologo
         {
-            Nombre = nombre, Email = emailNorm, Password = password,
+            Nombre = nombre, Email = emailNorm, Password = PasswordService.Hash(password),
             Cedula = cedula, Especialidad = especialidad, AniosExp = aniosExp,
             Validado = false, PacienteIds = new()
         };
@@ -473,7 +477,7 @@ public class CalorixFacade : ICalorixFacade
         {
             Nombre = nombre,
             Email = emailNorm,
-            Password = password,
+            Password = PasswordService.Hash(password),
             Edad = edad,
             Peso = peso,
             Altura = altura,
