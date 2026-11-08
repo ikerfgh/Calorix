@@ -1,4 +1,5 @@
 using Calorix.Models;
+using Calorix.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Calorix.Data;
@@ -44,6 +45,7 @@ public static class DbInitializer
         if (db.Alimentos.Any())
         {
             EnsureAdminNutriologo(db);
+            HashearPasswordsPlanas(db);
             return;
         }
 
@@ -143,6 +145,7 @@ public static class DbInitializer
         );
 
         db.SaveChanges();
+        HashearPasswordsPlanas(db);
     }
 
     private static void TryAddColumn(CalorixDbContext db, string table, string column, string definition)
@@ -155,6 +158,20 @@ public static class DbInitializer
         {
             // La columna ya existe — operación idempotente.
         }
+    }
+
+    /// <summary>
+    /// Migración: convierte a hash PBKDF2 cualquier contraseña que siga en texto plano
+    /// (cuentas demo y registros anteriores a esta versión). Es idempotente.
+    /// </summary>
+    private static void HashearPasswordsPlanas(CalorixDbContext db)
+    {
+        int cambios = 0;
+        foreach (var u in db.Usuarios.ToList().Where(u => !PasswordService.IsHashed(u.Password)))
+        { u.Password = PasswordService.Hash(u.Password); cambios++; }
+        foreach (var n in db.Nutriologos.ToList().Where(n => !PasswordService.IsHashed(n.Password)))
+        { n.Password = PasswordService.Hash(n.Password); cambios++; }
+        if (cambios > 0) db.SaveChanges();
     }
 
     private static void EnsureAdminNutriologo(CalorixDbContext db)

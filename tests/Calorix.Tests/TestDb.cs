@@ -27,12 +27,12 @@ public sealed class TestDb : IDisposable
         Manzana = new Alimento { Nombre = "Manzana", Calorias = 52, Proteinas = 0.3f, Carbohidratos = 14, Grasas = 0.2f, Categoria = "Frutas" };
         Maria = new Usuario
         {
-            Nombre = "María", Email = "maria@test.com", Password = "demo123",
+            Nombre = "María", Email = "maria@test.com", Password = Calorix.Services.PasswordService.Hash("demo123"),
             Edad = 28, Peso = 65, Altura = 165, Genero = "F", NivelActividad = "Moderado", MetaCalorica = 2000
         };
         Carlos = new Nutriologo
         {
-            Nombre = "Dr. Carlos", Email = "carlos@test.com", Password = "demo123",
+            Nombre = "Dr. Carlos", Email = "carlos@test.com", Password = Calorix.Services.PasswordService.Hash("demo123"),
             Cedula = "1234567", Especialidad = "Clínica", AniosExp = 5, Validado = true
         };
         Db.Alimentos.Add(Manzana);
