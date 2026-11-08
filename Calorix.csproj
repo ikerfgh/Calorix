@@ -6,11 +6,18 @@
     <RootNamespace>Calorix</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Los proyectos de prueba viven en tests/ y se compilan por separado -->
+    <Compile Remove="tests/**" />
+    <Content Remove="tests/**" />
+    <None Remove="tests/**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.*">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.*" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.*" />
+    <PackageReference Include="QuestPDF" Version="2024.12.3" />
   </ItemGroup>
 </Project>
