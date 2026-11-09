@@ -1,0 +1,64 @@
+# Integración continua de Calorix:
+# en cada push o pull request compila la app y corre todas las pruebas automatizadas.
+name: Pruebas automatizadas
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  unitarias:
+    name: Pruebas unitarias (xUnit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Compilar
+        run: dotnet build Calorix.csproj -c Release
+      - name: Correr pruebas unitarias
+        run: dotnet test tests/Calorix.Tests -c Release --logger "trx;LogFileName=unitarias.trx" --results-directory resultados
+      - name: Guardar resultados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-unitarias
+          path: resultados
+
+  robot:
+    name: Robot de UI y APIs (Playwright)
+    runs-on: ubuntu-latest
+    needs: unitarias
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Compilar
+        run: |
+          dotnet build Calorix.csproj
+          dotnet build tests/Calorix.UITests
+      - name: Instalar navegador Chromium
+        run: pwsh tests/Calorix.UITests/bin/Debug/net9.0/playwright.ps1 install --with-deps chromium
+      - name: Levantar la app
+        run: |
+          nohup dotnet run --no-build --project Calorix.csproj --urls http://localhost:5080 > app.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:5080/Home/Login > /dev/null && echo "App lista" && exit 0
+            sleep 2
+          done
+          echo "La app no arrancó"; cat app.log; exit 1
+      - name: Correr robot (UI, REST y GraphQL)
+        run: dotnet test tests/Calorix.UITests --no-build --logger "trx;LogFileName=robot.trx" --results-directory resultados
+      - name: Guardar resultados y log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-robot
+          path: |
+            resultados
+            app.log
