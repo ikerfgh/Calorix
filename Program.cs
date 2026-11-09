@@ -21,6 +21,10 @@ builder.Services.AddDbContext<CalorixDbContext>(options =>
     options.UseSqlite(DatabaseConnection.Instance.ConnectionString));
 builder.Services.AddScoped<ICalorixFacade, CalorixFacade>();
 builder.Services.AddScoped<Calorix.Services.IReportePdfService, Calorix.Services.ReportePdfService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddGraphQLServer()
+    .AddQueryType<Calorix.GraphQL.Query>()
+    .AddMutationType<Calorix.GraphQL.Mutation>();
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community; // licencia gratuita (proyecto académico)
 
 var app = builder.Build();
@@ -41,6 +45,8 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
 app.UseAuthorization();
+
+app.MapGraphQL(); // /graphql — incluye el explorador Nitro en el navegador
 
 app.MapControllerRoute(
     name: "default",
