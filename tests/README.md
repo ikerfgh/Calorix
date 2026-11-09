@@ -3,7 +3,7 @@
 | Proyecto | Tipo | Qué cubre |
 |---|---|---|
 | `Calorix.Tests` | xUnit + SQLite en memoria | Lógica de negocio vía `CalorixFacade` (CU1–CU8) y reportes PDF. Casos TC-01 … TC-20 |
-| `Calorix.UITests` | Robot Playwright (Chromium) | Recorre la interfaz: login, menú, descargas PDF, logout. Casos UI-01 … UI-08 |
+| `Calorix.UITests` | Robot Playwright (Chromium) | Recorre la interfaz: login, menú, descargas PDF, logout (UI-01 … UI-08) y la API GraphQL en `/graphql` (GQ-01 … GQ-05) |
 
 ## Cómo correrlas
 
