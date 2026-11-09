@@ -48,9 +48,9 @@ curl "http://localhost:5080/api/alimentos?buscar=arroz"
 # Perfil (con sesión)
 curl -b cookies.txt http://localhost:5080/api/perfil
 
-# Registrar 150 g del alimento 1 en el desayuno
+# Registrar 150 g de arroz (alimento 2) en el desayuno
 curl -b cookies.txt -H "Content-Type: application/json" \
-     -d '{"alimentoId":1,"cantidad":150,"momento":"Desayuno"}' \
+     -d '{"alimentoId":2,"cantidad":150,"momento":"Desayuno"}' \
      http://localhost:5080/api/registros
 
 # Resumen del día
@@ -60,7 +60,7 @@ curl -b cookies.txt http://localhost:5080/api/resumen
 Respuesta de `POST /api/registros` (201):
 
 ```json
-{ "id": 42, "usuarioId": 1, "alimentoId": 1, "nombreAlimento": "Arroz Blanco Cocido",
+{ "id": 42, "usuarioId": 1, "alimentoId": 2, "nombreAlimento": "Arroz Blanco Cocido",
   "cantidad": 150, "unidadCantidad": "g", "momento": "Desayuno",
   "calorias": 195, "proteinas": 4, "carbohidratos": 42, "grasas": 0 }
 ```
