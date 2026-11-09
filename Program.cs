@@ -22,6 +22,15 @@ builder.Services.AddDbContext<CalorixDbContext>(options =>
 builder.Services.AddScoped<ICalorixFacade, CalorixFacade>();
 builder.Services.AddScoped<Calorix.Services.IReportePdfService, Calorix.Services.ReportePdfService>();
 builder.Services.AddHttpContextAccessor();
+// API REST documentada con Swagger (/swagger)
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "Calorix REST API", Version = "v1",
+        Description = "Endpoints REST de Calorix. Los recursos personales usan la cookie de sesión: inicia sesión en la app antes de probarlos." });
+    var xml = System.IO.Path.Combine(AppContext.BaseDirectory, "Calorix.xml");
+    if (System.IO.File.Exists(xml)) c.IncludeXmlComments(xml);
+});
 builder.Services.AddGraphQLServer()
     .AddQueryType<Calorix.GraphQL.Query>()
     .AddMutationType<Calorix.GraphQL.Mutation>();
@@ -46,6 +55,10 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthorization();
 
+app.UseSwagger();
+app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Calorix REST v1"));
+
+app.MapControllers();  // /api/... — API REST
 app.MapGraphQL(); // /graphql — incluye el explorador Nitro en el navegador
 
 app.MapControllerRoute(
