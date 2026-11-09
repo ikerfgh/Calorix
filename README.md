@@ -53,11 +53,11 @@ Cuentas demo (contraseña `demo123`): `maria@demo.com` (paciente), `carlos@demo.
 
 ## Pruebas
 
-64 pruebas automatizadas, ejecutadas en cada push por **GitHub Actions** ([workflow](.github/workflows/pruebas.yml)):
+54 pruebas automatizadas, ejecutadas en cada push por **GitHub Actions** ([workflow](.github/workflows/pruebas.yml)):
 
 | Suite | Pruebas |
 |---|---|
 | `tests/Calorix.Tests` — xUnit (fachada, seguridad, reportes) | 30 |
-| `tests/Calorix.UITests` — robot Playwright (UI, REST, GraphQL) | 34 |
+| `tests/Calorix.UITests` — robot Playwright (UI, REST, GraphQL) | 24 |
 
 Detalle y trazabilidad con los casos de uso en [tests/README.md](tests/README.md).
