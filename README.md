@@ -37,7 +37,17 @@ Patrones de diseño (GoF): **Facade** (`CalorixFacade` como punto único de la l
 
 ## Cómo correrlo
 
-Requisitos: [.NET 9 SDK](https://dotnet.microsoft.com/download).
+Requisitos: [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) y [Git](https://git-scm.com/download/win).
+
+En una computadora nueva, clonar y preparar todo (compila la app y las pruebas e instala el navegador del robot) con un solo script:
+
+```powershell
+git clone https://github.com/ikerfgh/Calorix.git
+cd Calorix
+powershell -ExecutionPolicy Bypass -File instalar.ps1
+```
+
+Después, levantar la app:
 
 ```bash
 dotnet run --urls http://localhost:5080
